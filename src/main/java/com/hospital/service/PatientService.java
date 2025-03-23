@@ -114,6 +114,20 @@ public class PatientService {
                 .filter(p -> p.getGender().equalsIgnoreCase(gender))
                 .count();
     }
+    private HospitalBlock getBlockBySpecialty(String specialty) {
+        HospitalService hospitalService = HospitalService.getInstance();
+        List<HospitalBlock> blocks = hospitalService.getAllBlocks();
+
+        if (blocks == null || blocks.isEmpty()) {
+            // Create a default block if none exists
+            return new HospitalBlock("A", 1, "General");
+        }
+
+        return blocks.stream()
+                .filter(b -> b.getSpecialty().equals(specialty))
+                .findFirst()
+                .orElse(blocks.get(0)); // Default to first block if specialty not found
+    }
 
     // Initialize with some sample data for testing
     public void initializeWithSampleData() {

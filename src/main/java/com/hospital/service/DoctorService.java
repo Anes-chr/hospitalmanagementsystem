@@ -50,26 +50,49 @@ public class DoctorService {
         HospitalService hospitalService = HospitalService.getInstance();
         List<HospitalBlock> blocks = hospitalService.getAllBlocks();
 
+        // Safety check - if blocks list is empty, create a default block
+        if (blocks == null || blocks.isEmpty()) {
+            try {
+                // Create a default block
+                HospitalBlock defaultBlock = new HospitalBlock("A", 1, "General Medicine");
+                hospitalService.addBlock(defaultBlock);
+                blocks = hospitalService.getAllBlocks(); // Get updated list
+            } catch (Exception e) {
+                e.printStackTrace();
+                // If we still can't create a block, create an empty list
+                blocks = new ArrayList<>();
+                blocks.add(new HospitalBlock("A", 1, "General Medicine"));
+            }
+        }
+
+        // Get the first block or create a default one if list is still empty
+        HospitalBlock firstBlock = blocks.isEmpty() ? new HospitalBlock("A", 1, "General Medicine") : blocks.get(0);
+
         try {
             // Create default doctors
             Doctor doc1 = new Doctor("john.smith", "password", "Dr. John Smith", "jsmith@hospital.com",
-                    "Cardiology", "MD12345", blocks.stream().filter(b -> b.getSpecialty().equals("Cardiology")).findFirst().orElse(blocks.get(0)),
+                    "Cardiology", "MD12345",
+                    findBlockBySpecialty(blocks, "Cardiology", firstBlock),
                     "555-1234", "9:00 AM - 5:00 PM");
 
             Doctor doc2 = new Doctor("emily.johnson", "password", "Dr. Emily Johnson", "ejohnson@hospital.com",
-                    "Pediatrics", "MD67890", blocks.stream().filter(b -> b.getSpecialty().equals("Pediatrics")).findFirst().orElse(blocks.get(0)),
+                    "Pediatrics", "MD67890",
+                    findBlockBySpecialty(blocks, "Pediatrics", firstBlock),
                     "555-5678", "8:00 AM - 4:00 PM");
 
             Doctor doc3 = new Doctor("michael.williams", "password", "Dr. Michael Williams", "mwilliams@hospital.com",
-                    "General Medicine", "MD24680", blocks.stream().filter(b -> b.getSpecialty().equals("General Medicine")).findFirst().orElse(blocks.get(0)),
+                    "General Medicine", "MD24680",
+                    findBlockBySpecialty(blocks, "General Medicine", firstBlock),
                     "555-9012", "10:00 AM - 6:00 PM");
 
             Doctor doc4 = new Doctor("sarah.brown", "password", "Dr. Sarah Brown", "sbrown@hospital.com",
-                    "Surgery", "MD13579", blocks.stream().filter(b -> b.getSpecialty().equals("Surgery")).findFirst().orElse(blocks.get(0)),
+                    "Surgery", "MD13579",
+                    findBlockBySpecialty(blocks, "Surgery", firstBlock),
                     "555-3456", "7:00 AM - 3:00 PM");
 
             Doctor doc5 = new Doctor("david.miller", "password", "Dr. David Miller", "dmiller@hospital.com",
-                    "Emergency", "MD97531", blocks.stream().filter(b -> b.getSpecialty().equals("Emergency")).findFirst().orElse(blocks.get(0)),
+                    "Emergency", "MD97531",
+                    findBlockBySpecialty(blocks, "Emergency", firstBlock),
                     "555-7890", "All shifts (rotating)");
 
             doctors.add(doc1);
@@ -82,6 +105,14 @@ public class DoctorService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private HospitalBlock findBlockBySpecialty(List<HospitalBlock> blocks, String specialty, HospitalBlock defaultBlock) {
+        if (blocks == null || blocks.isEmpty()) return defaultBlock;
+        return blocks.stream()
+                .filter(b -> b.getSpecialty().equalsIgnoreCase(specialty))
+                .findFirst()
+                .orElse(defaultBlock);
     }
 
     public List<Doctor> getAllDoctors() {

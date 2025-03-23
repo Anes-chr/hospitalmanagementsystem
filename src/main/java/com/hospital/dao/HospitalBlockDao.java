@@ -4,20 +4,24 @@ import com.hospital.model.HospitalBlock;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class HospitalBlockDao extends JsonDao<HospitalBlock> {
-    private static final String FILE_PATH = "data/blocks.json";
+    private static final String BLOCKS_FILE = "data/hospital_blocks.json";
 
     public HospitalBlockDao() {
-        super(FILE_PATH, HospitalBlock.class);
+        super(BLOCKS_FILE, HospitalBlock.class);
+    }
+
+    @Override
+    protected String getId(HospitalBlock block) {
+        return block.getBlockName(); // Using blockName as the ID
     }
 
     @Override
     public HospitalBlock getById(String blockName) {
         List<HospitalBlock> blocks = getAllEntities();
         return blocks.stream()
-                .filter(block -> block.getBlockName().equals(blockName))
+                .filter(b -> b.getBlockName().equals(blockName))
                 .findFirst()
                 .orElse(null);
     }
@@ -26,46 +30,41 @@ public class HospitalBlockDao extends JsonDao<HospitalBlock> {
     public void save(HospitalBlock block) throws IOException {
         List<HospitalBlock> blocks = getAllEntities();
 
-        // Check if block already exists
+        // Check if the block already exists
         boolean exists = blocks.stream()
                 .anyMatch(b -> b.getBlockName().equals(block.getBlockName()));
 
         if (!exists) {
             blocks.add(block);
-            saveEntities(blocks);
+            saveAllEntities(blocks);
         } else {
+            // Update the existing block
             update(block);
         }
     }
 
     @Override
-    public void update(HospitalBlock block) throws IOException {
+    public void update(HospitalBlock updatedBlock) throws IOException {
         List<HospitalBlock> blocks = getAllEntities();
 
+        boolean found = false;
         for (int i = 0; i < blocks.size(); i++) {
-            if (blocks.get(i).getBlockName().equals(block.getBlockName())) {
-                blocks.set(i, block);
+            if (blocks.get(i).getBlockName().equals(updatedBlock.getBlockName())) {
+                blocks.set(i, updatedBlock);
+                found = true;
                 break;
             }
         }
 
-        saveEntities(blocks);
+        if (found) {
+            saveAllEntities(blocks);
+        }
     }
 
     @Override
     public void delete(String blockName) throws IOException {
         List<HospitalBlock> blocks = getAllEntities();
-        List<HospitalBlock> updatedBlocks = blocks.stream()
-                .filter(block -> !block.getBlockName().equals(blockName))
-                .collect(Collectors.toList());
-
-        saveEntities(updatedBlocks);
-    }
-
-    public List<HospitalBlock> getBlocksBySpecialty(String specialty) {
-        List<HospitalBlock> blocks = getAllEntities();
-        return blocks.stream()
-                .filter(block -> block.getSpecialty().equalsIgnoreCase(specialty))
-                .collect(Collectors.toList());
+        blocks.removeIf(block -> block.getBlockName().equals(blockName));
+        saveAllEntities(blocks);
     }
 }

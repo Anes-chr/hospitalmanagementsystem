@@ -1,11 +1,17 @@
 package com.hospital.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HospitalBlock {
     private String blockName;
     private int floorNumber;
     private String specialty;
+    // This field isn't a property but calculated on-demand
+    private transient String fullLocation;
 
     public HospitalBlock() {
+        // Default constructor needed for Jackson
     }
 
     public HospitalBlock(String blockName, int floorNumber, String specialty) {
