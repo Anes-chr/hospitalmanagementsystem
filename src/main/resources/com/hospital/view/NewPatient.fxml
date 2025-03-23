@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.NewPatientController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <Label text="Add New Patient" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <HBox spacing="15">
+        <!-- Basic Patient Information -->
+        <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15" />
+            </padding>
+
+            <Label text="Basic Information" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
+                </columnConstraints>
+
+                <Label text="Patient Type:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <ComboBox fx:id="patientTypeCombo" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="Full Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextField fx:id="nameField" promptText="Enter full name" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Age:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="ageField" promptText="Enter age" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Gender:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <ComboBox fx:id="genderCombo" prefWidth="200" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Contact Number:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <TextField fx:id="contactField" promptText="Enter contact number" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                <Label text="Address:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <TextArea fx:id="addressField" promptText="Enter address" prefHeight="60" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+                <Label text="Blood Group:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                <ComboBox fx:id="bloodGroupCombo" prefWidth="200" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+                <Label text="Hospital Block:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <ComboBox fx:id="blockCombo" prefWidth="200" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+            </GridPane>
+        </VBox>
+
+        <!-- Type-specific Information -->
+        <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15" />
+            </padding>
+
+            <Label text="Type-specific Information" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+            <!-- InPatient Form -->
+            <VBox fx:id="inPatientForm" spacing="10" visible="false">
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
+                    </columnConstraints>
+
+                    <Label text="Room Number:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="roomNumberField" promptText="Enter room number" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                    <Label text="Admission Date:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <DatePicker fx:id="admissionDatePicker" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                    <Label text="Daily Rate ($):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <TextField fx:id="dailyRateField" promptText="Enter daily rate" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                    <Label text="Days Admitted:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                    <TextField fx:id="daysAdmittedField" promptText="Enter number of days" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                    <Label text="Attending Doctor:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                    <ComboBox fx:id="attendingDoctorCombo" prefWidth="200" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                </GridPane>
+            </VBox>
+
+            <!-- OutPatient Form -->
+            <VBox fx:id="outPatientForm" spacing="10" visible="false">
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
+                    </columnConstraints>
+
+                    <Label text="Appointment Date:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <DatePicker fx:id="appointmentDatePicker" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                    <Label text="Consult Fee ($):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <TextField fx:id="consultFeeField" promptText="Enter consult fee" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                    <Label text="Consulting Doctor:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <ComboBox fx:id="consultingDoctorCombo" prefWidth="200" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                    <Label text="Diagnosis:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                    <TextArea fx:id="diagnosisField" promptText="Enter diagnosis" prefHeight="60" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                </GridPane>
+            </VBox>
+
+            <!-- EmergencyPatient Form -->
+            <VBox fx:id="emergencyPatientForm" spacing="10" visible="false">
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
+                    </columnConstraints>
+
+                    <Label text="Severity Level:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <ComboBox fx:id="severityLevelCombo" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                    <Label text="Treatment Cost ($):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <TextField fx:id="treatmentCostField" promptText="Enter treatment cost" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                    <Label text="Emergency Contact:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <TextField fx:id="emergencyContactField" promptText="Enter emergency contact" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                    <Label text="Treatment Details:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                    <TextArea fx:id="treatmentDetailsField" promptText="Enter treatment details" prefHeight="60" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                    <Label text="Admission Time:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                    <TextField fx:id="admissionTimeField" promptText="Enter admission time (HH:MM)" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                </GridPane>
+            </VBox>
+        </VBox>
+    </HBox>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="BOTTOM_RIGHT">
+        <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" />
+        <Button fx:id="saveButton" text="Save Patient" onAction="#handleSave" styleClass="primary" />
+    </HBox>
+</VBox>

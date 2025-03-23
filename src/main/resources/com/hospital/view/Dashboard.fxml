@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.DashboardController">
+    <top>
+        <VBox>
+            <!-- Top Header -->
+            <HBox styleClass="header-section" alignment="CENTER_LEFT" spacing="10">
+                <ImageView fx:id="hospitalLogo" fitHeight="40" fitWidth="40" preserveRatio="true" />
+                <Label fx:id="hospitalNameLabel" text="Hospital Management System" styleClass="title-label" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="currentUserLabel" text="Welcome, User" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#handleLogout" styleClass="button" />
+                <padding>
+                    <Insets top="5" right="15" bottom="5" left="15" />
+                </padding>
+            </HBox>
+
+            <!-- Main Menu -->
+            <ToolBar styleClass="menu-bar">
+                <Button fx:id="dashboardBtn" text="Dashboard" styleClass="menu-button" onAction="#showDashboard" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="patientsBtn" text="Patients" styleClass="menu-button" onAction="#showPatients" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="doctorsBtn" text="Doctors" styleClass="menu-button" onAction="#showDoctors" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="appointmentsBtn" text="Appointments" styleClass="menu-button" onAction="#showAppointments" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="pharmacyBtn" text="Pharmacy" styleClass="menu-button" onAction="#showPharmacy" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="testingBtn" text="Medical Tests" styleClass="menu-button" onAction="#showTesting" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="billingBtn" text="Billing" styleClass="menu-button" onAction="#showBilling" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="reportsBtn" text="Reports" styleClass="menu-button" onAction="#showReports" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="settingsBtn" text="Settings" styleClass="menu-button" onAction="#showSettings" />
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <center>
+        <StackPane fx:id="contentArea">
+            <!-- Dashboard Content -->
+            <VBox fx:id="dashboardPane" spacing="15" visible="true">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20" />
+                </padding>
+
+                <!-- Statistics Cards -->
+                <HBox spacing="15" alignment="CENTER">
+                    <VBox styleClass="dashboard-tile" prefWidth="200" prefHeight="120" alignment="CENTER">
+                        <Label text="Total Patients" />
+                        <Label fx:id="totalPatientsLabel" text="0" styleClass="count" />
+                    </VBox>
+
+                    <VBox styleClass="dashboard-tile" prefWidth="200" prefHeight="120" alignment="CENTER">
+                        <Label text="Total Doctors" />
+                        <Label fx:id="totalDoctorsLabel" text="0" styleClass="count" />
+                    </VBox>
+
+                    <VBox styleClass="dashboard-tile" prefWidth="200" prefHeight="120" alignment="CENTER">
+                        <Label text="Appointments Today" />
+                        <Label fx:id="todayAppointmentsLabel" text="0" styleClass="count" />
+                    </VBox>
+
+                    <VBox styleClass="dashboard-tile" prefWidth="200" prefHeight="120" alignment="CENTER">
+                        <Label text="Emergency Patients" />
+                        <Label fx:id="emergencyPatientsLabel" text="0" styleClass="count" />
+                    </VBox>
+                </HBox>
+
+                <!-- Charts -->
+                <HBox spacing="15" VBox.vgrow="ALWAYS">
+                    <!-- Patient Distribution -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Patient Distribution" styleClass="section-title" />
+                        <PieChart fx:id="patientDistributionChart" VBox.vgrow="ALWAYS" />
+                    </VBox>
+
+                    <!-- Revenue Chart -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Revenue by Patient Type" styleClass="section-title" />
+                        <BarChart fx:id="revenueChart" VBox.vgrow="ALWAYS">
+                            <xAxis>
+                                <CategoryAxis label="Patient Type" />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Revenue ($)" />
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+
+                <!-- Recent Activities and Quick Access -->
+                <HBox spacing="15" VBox.vgrow="ALWAYS">
+                    <!-- Recent Activities -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Recent Activities" styleClass="section-title" />
+                        <TableView fx:id="recentActivitiesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="activityTimeColumn" text="Time" />
+                                <TableColumn fx:id="activityTypeColumn" text="Type" />
+                                <TableColumn fx:id="activityDescriptionColumn" text="Description" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- Quick Access -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10">
+                        <Label text="Quick Actions" styleClass="section-title" />
+                        <Button text="Add New Patient" onAction="#handleAddPatient" maxWidth="Infinity" />
+                        <Button text="Schedule Appointment" onAction="#handleScheduleAppointment" maxWidth="Infinity" />
+                        <Button text="Pharmacy Management" onAction="#handlePharmacyManagement" maxWidth="Infinity" />
+                        <Button text="Generate Reports" onAction="#handleGenerateReports" maxWidth="Infinity" />
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Other content panes will be loaded dynamically -->
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox styleClass="footer" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Hospital Management System v1.0" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="statusLabel" text="Ready" />
+            <Label fx:id="currentTimeLabel" text="2023-05-25 12:00:00" />
+            <padding>
+                <Insets top="5" right="15" bottom="5" left="15" />
+            </padding>
+        </HBox>
+    </bottom>
+</BorderPane>
