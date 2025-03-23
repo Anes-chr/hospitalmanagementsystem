@@ -9,28 +9,33 @@ public class Appointment {
     private String date;
     private String time;
     private String duration;
-    private String status; // Scheduled, Completed, Cancelled, No-Show
     private String purpose;
-    private String notes;
     private HospitalBlock location;
-    private boolean notificationSent;
+    private String notes;
+    private String status;
 
     public Appointment() {
         this.id = UUID.randomUUID().toString();
+        this.status = "Scheduled";
     }
 
     public Appointment(String patientId, String doctorId, String date, String time,
                        String duration, String purpose, HospitalBlock location) {
+        this(patientId, doctorId, date, time, duration, purpose, location, "");
+    }
+
+    public Appointment(String patientId, String doctorId, String date, String time,
+                       String duration, String purpose, HospitalBlock location, String notes) {
         this.id = UUID.randomUUID().toString();
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.date = date;
         this.time = time;
         this.duration = duration;
-        this.status = "Scheduled";
         this.purpose = purpose;
         this.location = location;
-        this.notificationSent = false;
+        this.notes = notes;
+        this.status = "Scheduled";
     }
 
     public String getId() {
@@ -81,28 +86,12 @@ public class Appointment {
         this.duration = duration;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getPurpose() {
         return purpose;
     }
 
     public void setPurpose(String purpose) {
         this.purpose = purpose;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
     }
 
     public HospitalBlock getLocation() {
@@ -113,11 +102,19 @@ public class Appointment {
         this.location = location;
     }
 
-    public boolean isNotificationSent() {
-        return notificationSent;
+    public String getNotes() {
+        return notes;
     }
 
-    public void setNotificationSent(boolean notificationSent) {
-        this.notificationSent = notificationSent;
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

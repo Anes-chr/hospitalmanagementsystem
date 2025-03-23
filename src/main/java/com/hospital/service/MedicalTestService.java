@@ -1,32 +1,28 @@
 package com.hospital.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hospital.dao.MedicalTestDao;
+import javafx.scene.layout.HBox;
+import com.hospital.dao.TestResultDao;
+import com.hospital.dao.XRayExaminationDao;
 import com.hospital.model.MedicalTest;
 import com.hospital.model.TestResult;
 import com.hospital.model.XRayExamination;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MedicalTestService {
     private static MedicalTestService instance;
-    private final String MEDICAL_TESTS_FILE = "data/medical_tests.json";
-    private final String TEST_RESULTS_FILE = "data/test_results.json";
-    private final String XRAY_EXAMINATIONS_FILE = "data/xray_examinations.json";
-    private final ObjectMapper objectMapper;
-    private List<MedicalTest> medicalTests;
-    private List<TestResult> testResults;
-    private List<XRayExamination> xRayExaminations;
+    private final MedicalTestDao medicalTestDao;
+    private final TestResultDao testResultDao;
+    private final XRayExaminationDao xRayExaminationDao;
 
     private MedicalTestService() {
-        objectMapper = new ObjectMapper();
-        loadMedicalTests();
-        loadTestResults();
-        loadXRayExaminations();
+        medicalTestDao = new MedicalTestDao();
+        testResultDao = new TestResultDao();
+        xRayExaminationDao = new XRayExaminationDao();
+        initializeDefaultTests();
     }
 
     public static MedicalTestService getInstance() {
@@ -36,256 +32,151 @@ public class MedicalTestService {
         return instance;
     }
 
-    private void loadMedicalTests() {
-        File file = new File(MEDICAL_TESTS_FILE);
-        if (file.exists()) {
+    private void initializeDefaultTests() {
+        List<MedicalTest> tests = getAllMedicalTests();
+        if (tests.isEmpty()) {
             try {
-                medicalTests = objectMapper.readValue(file,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, MedicalTest.class));
+                // Add some default medical tests
+                MedicalTest cbc = new MedicalTest(
+                        "Complete Blood Count",
+                        "Measures various components of the blood including red and white blood cells, platelets, etc.",
+                        "Hematology",
+                        45.0,
+                        "No special preparation required.",
+                        "15-30 minutes",
+                        true
+                );
+
+                MedicalTest urinalysis = new MedicalTest(
+                        "Urinalysis",
+                        "Analyzes urine characteristics and components.",
+                        "Urology",
+                        35.0,
+                        "Collect midstream urine sample.",
+                        "10-15 minutes",
+                        false
+                );
+
+                MedicalTest lipidPanel = new MedicalTest(
+                        "Lipid Panel",
+                        "Measures cholesterol and triglycerides.",
+                        "Chemistry",
+                        65.0,
+                        "Fast for 12 hours before the test.",
+                        "30 minutes",
+                        true
+                );
+
+                MedicalTest ecg = new MedicalTest(
+                        "Electrocardiogram (ECG)",
+                        "Records electrical activity of the heart.",
+                        "Cardiology",
+                        120.0,
+                        "Wear loose-fitting clothing.",
+                        "15-20 minutes",
+                        false
+                );
+
+                addMedicalTest(cbc);
+                addMedicalTest(urinalysis);
+                addMedicalTest(lipidPanel);
+                addMedicalTest(ecg);
+
             } catch (IOException e) {
                 e.printStackTrace();
-                createDefaultMedicalTests();
             }
-        } else {
-            createDefaultMedicalTests();
         }
     }
 
-    private void loadTestResults() {
-        File file = new File(TEST_RESULTS_FILE);
-        if (file.exists()) {
-            try {
-                testResults = objectMapper.readValue(file,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, TestResult.class));
-            } catch (IOException e) {
-                e.printStackTrace();
-                testResults = new ArrayList<>();
-            }
-        } else {
-            testResults = new ArrayList<>();
-        }
-    }
-
-    private void loadXRayExaminations() {
-        File file = new File(XRAY_EXAMINATIONS_FILE);
-        if (file.exists()) {
-            try {
-                xRayExaminations = objectMapper.readValue(file,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, XRayExamination.class));
-            } catch (IOException e) {
-                e.printStackTrace();
-                xRayExaminations = new ArrayList<>();
-            }
-        } else {
-            xRayExaminations = new ArrayList<>();
-        }
-    }
-
-    private void createDefaultMedicalTests() {
-        medicalTests = new ArrayList<>();
-
-        try {
-            // Create default medical tests
-            MedicalTest test1 = new MedicalTest("Complete Blood Count (CBC)",
-                    "Measures different components of blood", "Hematology",
-                    75.0, "No food or drink for 8 hours before test", "30 minutes", true);
-
-            MedicalTest test2 = new MedicalTest("Basic Metabolic Panel",
-                    "Measures glucose, electrolytes, and kidney function", "Chemistry",
-                    85.0, "No food or drink for 8 hours before test", "1 hour", true);
-
-            MedicalTest test3 = new MedicalTest("Lipid Profile",
-                    "Measures cholesterol levels", "Chemistry",
-                    95.0, "No food or drink for 12 hours before test", "1 hour", true);
-
-            MedicalTest test4 = new MedicalTest("Urinalysis",
-                    "Analyzes urine composition", "Urology",
-                    50.0, "Clean catch sample required", "45 minutes", false);
-
-            MedicalTest test5 = new MedicalTest("Thyroid Function Test",
-                    "Measures thyroid hormone levels", "Endocrinology",
-                    120.0, "No preparation needed", "2 hours", false);
-
-            MedicalTest test6 = new MedicalTest("COVID-19 PCR",
-                    "Detects viral RNA in respiratory samples", "Infectious Disease",
-                    100.0, "No preparation needed", "24-48 hours", false);
-
-            medicalTests.add(test1);
-            medicalTests.add(test2);
-            medicalTests.add(test3);
-            medicalTests.add(test4);
-            medicalTests.add(test5);
-            medicalTests.add(test6);
-
-            saveMedicalTests();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Medical Tests methods
     public List<MedicalTest> getAllMedicalTests() {
-        return medicalTests;
-    }
-
-    public List<MedicalTest> getMedicalTestsByCategory(String category) {
-        return medicalTests.stream()
-                .filter(t -> t.getCategory().equalsIgnoreCase(category))
-                .collect(Collectors.toList());
+        return medicalTestDao.getAllEntities();
     }
 
     public MedicalTest getMedicalTestById(String id) {
-        return medicalTests.stream()
-                .filter(t -> t.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return medicalTestDao.getById(id);
     }
 
-    public void addMedicalTest(MedicalTest test) throws IOException {
-        if (test.getId() == null || test.getId().isEmpty()) {
-            test.setId(UUID.randomUUID().toString());
-        }
-        medicalTests.add(test);
-        saveMedicalTests();
+    public List<MedicalTest> getMedicalTestsByCategory(String category) {
+        return getAllMedicalTests().stream()
+                .filter(test -> test.getCategory().equalsIgnoreCase(category))
+                .collect(Collectors.toList());
     }
 
-    public void updateMedicalTest(MedicalTest test) throws IOException {
-        for (int i = 0; i < medicalTests.size(); i++) {
-            if (medicalTests.get(i).getId().equals(test.getId())) {
-                medicalTests.set(i, test);
-                break;
-            }
-        }
-        saveMedicalTests();
+    public void addMedicalTest(MedicalTest medicalTest) throws IOException {
+        medicalTestDao.save(medicalTest);
+    }
+
+    public void updateMedicalTest(MedicalTest medicalTest) throws IOException {
+        medicalTestDao.update(medicalTest);
     }
 
     public void deleteMedicalTest(String id) throws IOException {
-        medicalTests.removeIf(t -> t.getId().equals(id));
-        saveMedicalTests();
+        medicalTestDao.delete(id);
     }
 
     // Test Results methods
     public List<TestResult> getAllTestResults() {
-        return testResults;
+        return testResultDao.getAllEntities();
+    }
+
+    public TestResult getTestResultById(String id) {
+        return testResultDao.getById(id);
     }
 
     public List<TestResult> getTestResultsByPatientId(String patientId) {
-        return testResults.stream()
-                .filter(r -> r.getPatientId().equals(patientId))
+        return getAllTestResults().stream()
+                .filter(result -> result.getPatientId().equals(patientId))
                 .collect(Collectors.toList());
     }
 
     public List<TestResult> getTestResultsByDoctorId(String doctorId) {
-        return testResults.stream()
-                .filter(r -> r.getDoctorId().equals(doctorId))
+        return getAllTestResults().stream()
+                .filter(result -> result.getDoctorId().equals(doctorId))
                 .collect(Collectors.toList());
     }
 
-    public List<TestResult> getTestResultsByStatus(String status) {
-        return testResults.stream()
-                .filter(r -> r.getStatus().equals(status))
-                .collect(Collectors.toList());
+    public void addTestResult(TestResult testResult) throws IOException {
+        testResultDao.save(testResult);
     }
 
-    public TestResult getTestResultById(String id) {
-        return testResults.stream()
-                .filter(r -> r.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public void addTestResult(TestResult result) throws IOException {
-        if (result.getId() == null || result.getId().isEmpty()) {
-            result.setId(UUID.randomUUID().toString());
-        }
-        testResults.add(result);
-        saveTestResults();
-    }
-
-    public void updateTestResult(TestResult result) throws IOException {
-        for (int i = 0; i < testResults.size(); i++) {
-            if (testResults.get(i).getId().equals(result.getId())) {
-                testResults.set(i, result);
-                break;
-            }
-        }
-        saveTestResults();
+    public void updateTestResult(TestResult testResult) throws IOException {
+        testResultDao.update(testResult);
     }
 
     public void deleteTestResult(String id) throws IOException {
-        testResults.removeIf(r -> r.getId().equals(id));
-        saveTestResults();
+        testResultDao.delete(id);
     }
 
-    // X-Ray Examinations methods
+    // X-Ray Examination methods
     public List<XRayExamination> getAllXRayExaminations() {
-        return xRayExaminations;
+        return xRayExaminationDao.getAllEntities();
+    }
+
+    public XRayExamination getXRayExaminationById(String id) {
+        return xRayExaminationDao.getById(id);
     }
 
     public List<XRayExamination> getXRayExaminationsByPatientId(String patientId) {
-        return xRayExaminations.stream()
-                .filter(x -> x.getPatientId().equals(patientId))
+        return getAllXRayExaminations().stream()
+                .filter(xray -> xray.getPatientId().equals(patientId))
                 .collect(Collectors.toList());
     }
 
     public List<XRayExamination> getXRayExaminationsByDoctorId(String doctorId) {
-        return xRayExaminations.stream()
-                .filter(x -> x.getRequestedByDoctorId().equals(doctorId))
+        return getAllXRayExaminations().stream()
+                .filter(xray -> xray.getRequestedByDoctorId().equals(doctorId))
                 .collect(Collectors.toList());
     }
 
-    public List<XRayExamination> getXRayExaminationsByStatus(String status) {
-        return xRayExaminations.stream()
-                .filter(x -> x.getStatus().equals(status))
-                .collect(Collectors.toList());
+    public void addXRayExamination(XRayExamination xRayExamination) throws IOException {
+        xRayExaminationDao.save(xRayExamination);
     }
 
-    public XRayExamination getXRayExaminationById(String id) {
-        return xRayExaminations.stream()
-                .filter(x -> x.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public void addXRayExamination(XRayExamination examination) throws IOException {
-        if (examination.getId() == null || examination.getId().isEmpty()) {
-            examination.setId(UUID.randomUUID().toString());
-        }
-        xRayExaminations.add(examination);
-        saveXRayExaminations();
-    }
-
-    public void updateXRayExamination(XRayExamination examination) throws IOException {
-        for (int i = 0; i < xRayExaminations.size(); i++) {
-            if (xRayExaminations.get(i).getId().equals(examination.getId())) {
-                xRayExaminations.set(i, examination);
-                break;
-            }
-        }
-        saveXRayExaminations();
+    public void updateXRayExamination(XRayExamination xRayExamination) throws IOException {
+        xRayExaminationDao.update(xRayExamination);
     }
 
     public void deleteXRayExamination(String id) throws IOException {
-        xRayExaminations.removeIf(x -> x.getId().equals(id));
-        saveXRayExaminations();
-    }
-
-    // Save methods
-    private void saveMedicalTests() throws IOException {
-        File file = new File(MEDICAL_TESTS_FILE);
-        file.getParentFile().mkdirs();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, medicalTests);
-    }
-
-    private void saveTestResults() throws IOException {
-        File file = new File(TEST_RESULTS_FILE);
-        file.getParentFile().mkdirs();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, testResults);
-    }
-
-    private void saveXRayExaminations() throws IOException {
-        File file = new File(XRAY_EXAMINATIONS_FILE);
-        file.getParentFile().mkdirs();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, xRayExaminations);
+        xRayExaminationDao.delete(id);
     }
 }

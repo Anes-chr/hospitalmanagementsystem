@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.PatientDetailsController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <Label text="Patient Details" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <!-- Common Patient Information -->
+    <GridPane hgap="15" vgap="10" styleClass="card">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15" />
+        </padding>
+
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" />
+            <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+            <ColumnConstraints minWidth="120" />
+            <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+        </columnConstraints>
+
+        <Label text="Patient ID:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <Label fx:id="idLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Registration Date:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+        <Label fx:id="registrationDateLabel" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+        <Label text="Full Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <Label fx:id="nameLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Patient Type:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+        <Label fx:id="patientTypeLabel" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+        <Label text="Age:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <Label fx:id="ageLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <Label text="Gender:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+        <Label fx:id="genderLabel" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+        <Label text="Contact Number:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <Label fx:id="contactLabel" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+        <Label text="Blood Group:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+        <Label fx:id="bloodGroupLabel" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+
+        <Label text="Hospital Block:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+        <Label fx:id="locationLabel" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+        <Label text="Address:" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.valignment="TOP" />
+        <TextArea fx:id="addressArea" editable="false" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+    </GridPane>
+
+    <!-- InPatient Details -->
+    <VBox fx:id="inPatientDetails" spacing="10" styleClass="card" visible="false">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15" />
+        </padding>
+
+        <Label text="InPatient Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+            </columnConstraints>
+
+            <Label text="Room Number:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <Label fx:id="roomNumberLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <Label text="Admission Date:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+            <Label fx:id="admissionDateLabel" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+            <Label text="Daily Rate:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <Label fx:id="dailyRateLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+            <Label text="Days Admitted:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+            <Label fx:id="daysAdmittedLabel" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+            <Label text="Discharge Date:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+            <Label fx:id="dischargeDateLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+            <Label text="Attending Doctor:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+            <Label fx:id="attendingDoctorLabel" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+        </GridPane>
+    </VBox>
+
+    <!-- OutPatient Details -->
+    <VBox fx:id="outPatientDetails" spacing="10" styleClass="card" visible="false">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15" />
+        </padding>
+
+        <Label text="OutPatient Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+            </columnConstraints>
+
+            <Label text="Appointment Date:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <Label fx:id="appointmentDateLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <Label text="Consult Fee:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+            <Label fx:id="consultFeeLabel" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+            <Label text="Consulting Doctor:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <Label fx:id="consultingDoctorLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+            <Label text="Diagnosis:" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.valignment="TOP" />
+            <TextArea fx:id="diagnosisArea" editable="false" wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+        </GridPane>
+    </VBox>
+
+    <!-- EmergencyPatient Details -->
+    <VBox fx:id="emergencyPatientDetails" spacing="10" styleClass="card" visible="false">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15" />
+        </padding>
+
+        <Label text="Emergency Patient Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+            </columnConstraints>
+
+            <Label text="Severity Level:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <Label fx:id="severityLevelLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <Label text="Treatment Cost:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+            <Label fx:id="treatmentCostLabel" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+            <Label text="Emergency Contact:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <Label fx:id="emergencyContactLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+            <Label text="Admission Time:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+            <Label fx:id="admissionTimeLabel" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+            <Label text="Treatment Details:" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.valignment="TOP" />
+            <TextArea fx:id="treatmentDetailsArea" editable="false" wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+        </GridPane>
+    </VBox>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="closeButton" text="Close" onAction="#handleClose" prefWidth="100" />
+    </HBox>
+</VBox>

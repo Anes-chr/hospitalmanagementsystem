@@ -1,21 +1,19 @@
 package com.hospital.service;
 
 import com.hospital.dao.PatientDao;
-import com.hospital.model.EmergencyPatient;
-import com.hospital.model.HospitalBlock;
-import com.hospital.model.InPatient;
-import com.hospital.model.OutPatient;
-import com.hospital.model.Patient;
+import com.hospital.model.*;
+import com.hospital.util.DateUtil;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PatientService {
     private final PatientDao patientDao;
+    private final HospitalService hospitalService;
 
     public PatientService() {
         this.patientDao = new PatientDao();
+        this.hospitalService = HospitalService.getInstance();
     }
 
     public List<Patient> getAllPatients() {
@@ -34,11 +32,20 @@ public class PatientService {
         return patientDao.getPatientsByType(type);
     }
 
-    public List<Patient> getPatientsByLocation(String blockName) {
-        return patientDao.getPatientsByLocation(blockName);
+    public List<Patient> getPatientsByLocation(String location) {
+        return patientDao.getPatientsByLocation(location);
     }
 
+    public void addPatient(Patient patient) throws IOException {
+        patient.setRegistrationDate(DateUtil.getCurrentDate());
+        patientDao.save(patient);
+    }
+
+    // Add this method - it was missing
     public void savePatient(Patient patient) throws IOException {
+        if (patient.getRegistrationDate() == null || patient.getRegistrationDate().isEmpty()) {
+            patient.setRegistrationDate(DateUtil.getCurrentDate());
+        }
         patientDao.save(patient);
     }
 
@@ -50,72 +57,7 @@ public class PatientService {
         patientDao.delete(id);
     }
 
-    // Factory method to create a new patient based on type
-    public Patient createPatient(String type, String name, int age, String gender, HospitalBlock location,
-                                 String registrationDate, String contactNumber, String address, String bloodGroup,
-                                 Object... additionalParams) {
-        Patient patient = null;
-
-        switch (type) {
-            case "InPatient":
-                if (additionalParams.length >= 4) {
-                    String roomNumber = (String) additionalParams[0];
-                    String admissionDate = (String) additionalParams[1];
-                    double dailyRate = (double) additionalParams[2];
-                    int numberOfDaysAdmitted = (int) additionalParams[3];
-                    String attendingDoctor = additionalParams.length > 4 ? (String) additionalParams[4] : "";
-
-                    patient = new InPatient(name, age, gender, location, registrationDate, contactNumber, address,
-                            bloodGroup, roomNumber, admissionDate, dailyRate, numberOfDaysAdmitted, attendingDoctor);
-                }
-                break;
-
-            case "OutPatient":
-                if (additionalParams.length >= 3) {
-                    String appointmentDate = (String) additionalParams[0];
-                    double consultFee = (double) additionalParams[1];
-                    String consultingDoctor = (String) additionalParams[2];
-                    String diagnosis = additionalParams.length > 3 ? (String) additionalParams[3] : "";
-
-                    patient = new OutPatient(name, age, gender, location, registrationDate, contactNumber, address,
-                            bloodGroup, appointmentDate, consultFee, consultingDoctor, diagnosis);
-                }
-                break;
-
-            case "EmergencyPatient":
-                if (additionalParams.length >= 4) {
-                    String severityLevel = (String) additionalParams[0];
-                    double emergencyTreatmentCost = (double) additionalParams[1];
-                    String emergencyContact = (String) additionalParams[2];
-                    String treatmentDetails = (String) additionalParams[3];
-                    String admissionTime = additionalParams.length > 4 ? (String) additionalParams[4] : "";
-
-                    patient = new EmergencyPatient(name, age, gender, location, registrationDate, contactNumber, address,
-                            bloodGroup, severityLevel, emergencyTreatmentCost, emergencyContact, treatmentDetails, admissionTime);
-                }
-                break;
-        }
-
-        return patient;
-    }
-
-    // Get total bill amount for all patients
-    public double getTotalBilling() {
-        List<Patient> patients = getAllPatients();
-        return patients.stream()
-                .mapToDouble(Patient::calculateBill)
-                .sum();
-    }
-
-    // Get total patients by gender
-    public long getPatientCountByGender(String gender) {
-        List<Patient> patients = getAllPatients();
-        return patients.stream()
-                .filter(p -> p.getGender().equalsIgnoreCase(gender))
-                .count();
-    }
     private HospitalBlock getBlockBySpecialty(String specialty) {
-        HospitalService hospitalService = HospitalService.getInstance();
         List<HospitalBlock> blocks = hospitalService.getAllBlocks();
 
         if (blocks == null || blocks.isEmpty()) {
@@ -129,39 +71,83 @@ public class PatientService {
                 .orElse(blocks.get(0)); // Default to first block if specialty not found
     }
 
-    // Initialize with some sample data for testing
     public void initializeWithSampleData() {
-        if (getAllPatients().isEmpty()) {
-            try {
-                // Create a hospital block
-                HospitalBlock block1 = new HospitalBlock("A", 1, "General Medicine");
-                HospitalBlock block2 = new HospitalBlock("B", 2, "Cardiology");
-                HospitalBlock block3 = new HospitalBlock("C", 1, "Emergency");
+        // Check if we already have patients
+        List<Patient> existingPatients = getAllPatients();
+        if (!existingPatients.isEmpty()) {
+            return; // Skip initialization if data already exists
+        }
 
-                // Create sample patients
-                InPatient inPatient = new InPatient(
-                        "John Smith", 45, "Male", block1,
-                        "2023-05-20", "1234567890", "123 Main St", "O+",
-                        "A-101", "2023-05-20", 150.0, 5, "Dr. Wilson");
+        try {
+            // Get hospital blocks for assigning patients
+            List<HospitalBlock> blocks = hospitalService.getAllBlocks();
 
-                OutPatient outPatient = new OutPatient(
-                        "Jane Doe", 32, "Female", block2,
-                        "2023-05-21", "9876543210", "456 Elm St", "A-",
-                        "2023-05-23", 75.0, "Dr. Johnson", "Hypertension");
+            // Create default blocks if none exist
+            if (blocks == null || blocks.isEmpty()) {
+                HospitalBlock generalBlock = new HospitalBlock("A", 1, "General Medicine");
+                HospitalBlock emergencyBlock = new HospitalBlock("B", 1, "Emergency");
+                HospitalBlock pediatricsBlock = new HospitalBlock("C", 2, "Pediatrics");
 
-                EmergencyPatient emergencyPatient = new EmergencyPatient(
-                        "Mike Johnson", 28, "Male", block3,
-                        "2023-05-22", "5551234567", "789 Oak Rd", "B+",
-                        "High", 350.0, "5559876543", "Fractured arm", "2023-05-22 15:30");
+                hospitalService.addBlock(generalBlock);
+                hospitalService.addBlock(emergencyBlock);
+                hospitalService.addBlock(pediatricsBlock);
 
-                // Save the patients
-                patientDao.save(inPatient);
-                patientDao.save(outPatient);
-                patientDao.save(emergencyPatient);
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                blocks = hospitalService.getAllBlocks();
             }
+
+            // Get blocks by specialty or use first available
+            HospitalBlock generalBlock = blocks.stream()
+                    .filter(b -> b.getSpecialty().contains("General"))
+                    .findFirst()
+                    .orElse(blocks.get(0));
+
+            HospitalBlock emergencyBlock = blocks.stream()
+                    .filter(b -> b.getSpecialty().contains("Emergency"))
+                    .findFirst()
+                    .orElse(blocks.get(0));
+
+            // Create and save sample patients
+            // InPatient
+            InPatient inPatient1 = new InPatient(
+                    "John Doe", 45, "Male", generalBlock,
+                    DateUtil.getCurrentDate(), "5551234567", "123 Main St",
+                    "A+", "101", DateUtil.getCurrentDate(), 250.0, 5, "Dr. Smith"
+            );
+            patientDao.save(inPatient1);
+
+            InPatient inPatient2 = new InPatient(
+                    "Sarah Johnson", 35, "Female", generalBlock,
+                    DateUtil.getCurrentDate(), "5552345678", "456 Elm St",
+                    "O-", "102", DateUtil.getCurrentDate(), 300.0, 3, "Dr. Wilson"
+            );
+            patientDao.save(inPatient2);
+
+            // OutPatient
+            OutPatient outPatient1 = new OutPatient(
+                    "David Brown", 52, "Male", generalBlock,
+                    DateUtil.getCurrentDate(), "5553456789", "789 Pine St",
+                    "B-", DateUtil.getCurrentDate(), 150.0, "Dr. Jones", "Regular check-up"
+            );
+            patientDao.save(outPatient1);
+
+            OutPatient outPatient2 = new OutPatient(
+                    "Emily Clark", 28, "Female", generalBlock,
+                    DateUtil.getCurrentDate(), "5554567890", "101 Oak St",
+                    "AB+", DateUtil.getCurrentDate(), 120.0, "Dr. Garcia", "Allergies"
+            );
+            patientDao.save(outPatient2);
+
+            // EmergencyPatient
+            EmergencyPatient emergencyPatient1 = new EmergencyPatient(
+                    "Mike Johnson", 28, "Male", emergencyBlock,
+                    DateUtil.getCurrentDate(), "5551234567", "789 Oak Rd",
+                    "B+", "High", 350.0, "5559876543", "Fractured arm", "15:30"
+            );
+            patientDao.save(emergencyPatient1);
+
+        } catch (IOException e) {
+            System.err.println("Error initializing patient data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

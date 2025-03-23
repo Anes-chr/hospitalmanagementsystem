@@ -1,28 +1,24 @@
 package com.hospital.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hospital.dao.AppointmentDao;
 import com.hospital.model.Appointment;
 import com.hospital.model.Doctor;
-import com.hospital.model.Patient;
 import com.hospital.util.DateUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AppointmentService {
     private static AppointmentService instance;
-    private final String APPOINTMENTS_FILE = "data/appointments.json";
-    private final ObjectMapper objectMapper;
-    private List<Appointment> appointments;
+    private final AppointmentDao appointmentDao;
+    private final DoctorService doctorService;
 
     private AppointmentService() {
-        objectMapper = new ObjectMapper();
-        loadAppointments();
+        appointmentDao = new AppointmentDao();
+        doctorService = DoctorService.getInstance();
     }
 
     public static AppointmentService getInstance() {
@@ -32,98 +28,112 @@ public class AppointmentService {
         return instance;
     }
 
-    private void loadAppointments() {
-        File file = new File(APPOINTMENTS_FILE);
-        if (file.exists()) {
-            try {
-                appointments = objectMapper.readValue(file,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, Appointment.class));
-            } catch (IOException e) {
-                e.printStackTrace();
-                appointments = new ArrayList<>();
-            }
-        } else {
-            appointments = new ArrayList<>();
-        }
-    }
-
     public List<Appointment> getAllAppointments() {
-        return appointments;
-    }
-
-    public List<Appointment> getAppointmentsByPatientId(String patientId) {
-        return appointments.stream()
-                .filter(a -> a.getPatientId().equals(patientId))
-                .collect(Collectors.toList());
+        return appointmentDao.getAllEntities();
     }
 
     public List<Appointment> getAppointmentsByDoctorId(String doctorId) {
-        return appointments.stream()
+        if (doctorId == null || doctorId.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Verify doctor exists
+        Doctor doctor = doctorService.getDoctorById(doctorId);
+        if (doctor == null) {
+            return new ArrayList<>();
+        }
+
+        return appointmentDao.getAllEntities().stream()
                 .filter(a -> a.getDoctorId().equals(doctorId))
                 .collect(Collectors.toList());
     }
 
-    public List<Appointment> getAppointmentsByDate(String date) {
-        return appointments.stream()
-                .filter(a -> a.getDate().equals(date))
+    public List<Appointment> getAppointmentsByPatientId(String patientId) {
+        if (patientId == null || patientId.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return appointmentDao.getAllEntities().stream()
+                .filter(a -> a.getPatientId().equals(patientId))
                 .collect(Collectors.toList());
     }
 
     public List<Appointment> getTodayAppointments() {
         String today = DateUtil.formatDate(LocalDate.now());
-        return getAppointmentsByDate(today);
+        return appointmentDao.getAllEntities().stream()
+                .filter(a -> a.getDate().equals(today))
+                .collect(Collectors.toList());
     }
 
     public List<Appointment> getUpcomingAppointments() {
         String today = DateUtil.formatDate(LocalDate.now());
-        return appointments.stream()
-                .filter(a -> a.getDate().compareTo(today) >= 0 &&
-                        !a.getStatus().equals("Cancelled") &&
-                        !a.getStatus().equals("Completed"))
+        return appointmentDao.getAllEntities().stream()
+                .filter(a -> a.getDate().compareTo(today) >= 0)
+                .filter(a -> !a.getStatus().equals("Cancelled") && !a.getStatus().equals("Completed"))
                 .collect(Collectors.toList());
     }
 
+    public boolean isTimeSlotAvailable(String doctorId, String date, String time) {
+        // Check if doctor exists
+        Doctor doctor = doctorService.getDoctorById(doctorId);
+        if (doctor == null) {
+            return false;
+        }
+
+        return appointmentDao.getAllEntities().stream()
+                .filter(a -> a.getDoctorId().equals(doctorId))
+                .filter(a -> a.getDate().equals(date))
+                .filter(a -> a.getTime().equals(time))
+                .filter(a -> !a.getStatus().equals("Cancelled"))
+                .count() == 0;
+    }
+
     public Appointment getAppointmentById(String id) {
-        return appointments.stream()
-                .filter(a -> a.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return appointmentDao.getById(id);
     }
 
     public void addAppointment(Appointment appointment) throws IOException {
-        if (appointment.getId() == null || appointment.getId().isEmpty()) {
-            appointment.setId(UUID.randomUUID().toString());
+        if (appointment.getStatus() == null || appointment.getStatus().isEmpty()) {
+            appointment.setStatus("Scheduled");
         }
-        appointments.add(appointment);
-        saveAppointments();
+        appointmentDao.save(appointment);
     }
 
     public void updateAppointment(Appointment appointment) throws IOException {
-        for (int i = 0; i < appointments.size(); i++) {
-            if (appointments.get(i).getId().equals(appointment.getId())) {
-                appointments.set(i, appointment);
-                break;
-            }
-        }
-        saveAppointments();
+        appointmentDao.update(appointment);
     }
 
     public void deleteAppointment(String id) throws IOException {
-        appointments.removeIf(a -> a.getId().equals(id));
-        saveAppointments();
+        appointmentDao.delete(id);
     }
 
-    public boolean isTimeSlotAvailable(String doctorId, String date, String time) {
-        return appointments.stream()
-                .noneMatch(a -> a.getDoctorId().equals(doctorId) &&
-                        a.getDate().equals(date) &&
-                        a.getTime().equals(time) &&
-                        !a.getStatus().equals("Cancelled"));
+    public boolean hasDoctorAppointments(String doctorId) {
+        if (doctorId == null || doctorId.isEmpty()) {
+            return false;
+        }
+
+        return appointmentDao.getAllEntities().stream()
+                .anyMatch(a -> a.getDoctorId().equals(doctorId));
     }
 
-    private void saveAppointments() throws IOException {
-        File file = new File(APPOINTMENTS_FILE);
-        file.getParentFile().mkdirs();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, appointments);
+    public void cleanupDeletedDoctorAppointments() {
+        try {
+            List<Appointment> appointments = appointmentDao.getAllEntities();
+            List<Appointment> toUpdate = new ArrayList<>();
+
+            for (Appointment appointment : appointments) {
+                Doctor doctor = doctorService.getDoctorById(appointment.getDoctorId());
+                if (doctor == null && !appointment.getStatus().equals("Cancelled")) {
+                    appointment.setStatus("Cancelled");
+                    toUpdate.add(appointment);
+                }
+            }
+
+            for (Appointment appointment : toUpdate) {
+                appointmentDao.update(appointment);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

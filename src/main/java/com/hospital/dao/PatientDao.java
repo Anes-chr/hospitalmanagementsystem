@@ -1,25 +1,20 @@
 package com.hospital.dao;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.hospital.model.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PatientDao extends JsonDao<Patient> {
-    private final String PATIENTS_FILE = "data/patients.json";
-    private final ObjectMapper mapper;
 
     public PatientDao() {
         super("data/patients.json", Patient.class);
-        this.mapper = new ObjectMapper();
     }
 
     @Override
@@ -29,46 +24,20 @@ public class PatientDao extends JsonDao<Patient> {
 
     @Override
     public List<Patient> getAllEntities() {
-        File file = new File(PATIENTS_FILE);
+        File file = new File(filePath);
         if (!file.exists()) {
             return new ArrayList<>();
         }
 
-        List<Patient> patients = new ArrayList<>();
-
         try {
-            // Special handling for polymorphic deserialization
-            JsonNode rootNode = mapper.readTree(file);
-            if (rootNode.isArray()) {
-                for (JsonNode node : rootNode) {
-                    String type = node.has("patientType") ? node.get("patientType").asText() : "Unknown";
-
-                    Patient patient = null;
-                    switch (type) {
-                        case "InPatient":
-                            patient = mapper.treeToValue(node, InPatient.class);
-                            break;
-                        case "OutPatient":
-                            patient = mapper.treeToValue(node, OutPatient.class);
-                            break;
-                        case "EmergencyPatient":
-                            patient = mapper.treeToValue(node, EmergencyPatient.class);
-                            break;
-                        default:
-                            patient = mapper.treeToValue(node, Patient.class);
-                            break;
-                    }
-
-                    if (patient != null) {
-                        patients.add(patient);
-                    }
-                }
-            }
+            // Use Jackson's polymorphic deserialization
+            JavaType type = objectMapper.getTypeFactory().constructCollectionType(
+                    List.class, Patient.class);
+            return objectMapper.readValue(file, type);
         } catch (IOException e) {
             e.printStackTrace();
+            return new ArrayList<>();
         }
-
-        return patients;
     }
 
     @Override
@@ -78,52 +47,18 @@ public class PatientDao extends JsonDao<Patient> {
         }
 
         List<Patient> patients = getAllEntities();
-        patients.add(patient);
-        saveAllEntities(patients);
-    }
 
-    @Override
-    public void update(Patient updatedPatient) throws IOException {
-        List<Patient> patients = getAllEntities();
+        // Check if patient already exists
+        boolean exists = patients.stream()
+                .anyMatch(p -> p.getId().equals(patient.getId()));
 
-        boolean found = false;
-        for (int i = 0; i < patients.size(); i++) {
-            if (patients.get(i).getId().equals(updatedPatient.getId())) {
-                patients.set(i, updatedPatient);
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
+        if (!exists) {
+            patients.add(patient);
             saveAllEntities(patients);
+        } else {
+            update(patient);
         }
     }
-
-    @Override
-    public void delete(String id) throws IOException {
-        List<Patient> patients = getAllEntities();
-        patients.removeIf(patient -> patient.getId().equals(id));
-        saveAllEntities(patients);
-    }
-
-    @Override
-    protected void saveAllEntities(List<Patient> patients) throws IOException {
-        File file = new File(PATIENTS_FILE);
-        file.getParentFile().mkdirs();
-
-        // Create a JSON array for polymorphic serialization
-        ArrayNode arrayNode = mapper.createArrayNode();
-
-        for (Patient patient : patients) {
-            JsonNode patientNode = mapper.valueToTree(patient);
-            arrayNode.add(patientNode);
-        }
-
-        mapper.writerWithDefaultPrettyPrinter().writeValue(file, arrayNode);
-    }
-
-    // Add these missing methods that are called from PatientService
 
     /**
      * Search for patients by name
@@ -181,18 +116,10 @@ public class PatientDao extends JsonDao<Patient> {
         String searchLower = location.toLowerCase();
         return allPatients.stream()
                 .filter(patient -> {
-                    if (patient instanceof InPatient) {
-                        InPatient inPatient = (InPatient) patient;
-                        HospitalBlock block = inPatient.getLocation();
-                        return block != null &&
-                                (block.getBlockName().toLowerCase().contains(searchLower) ||
-                                        block.getSpecialty().toLowerCase().contains(searchLower));
-                    } else if (patient instanceof OutPatient) {
-                        OutPatient outPatient = (OutPatient) patient;
-                        HospitalBlock block = outPatient.getLocation();
-                        return block != null &&
-                                (block.getBlockName().toLowerCase().contains(searchLower) ||
-                                        block.getSpecialty().toLowerCase().contains(searchLower));
+                    if (patient.getLocation() != null) {
+                        HospitalBlock block = patient.getLocation();
+                        return block.getBlockName().toLowerCase().contains(searchLower) ||
+                                block.getSpecialty().toLowerCase().contains(searchLower);
                     }
                     return false;
                 })

@@ -1,8 +1,6 @@
 package com.hospital;
 
-import com.hospital.service.AuthService;
-import com.hospital.service.HospitalService;
-import com.hospital.service.PatientService;
+import com.hospital.service.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,10 +8,18 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.File;
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Ensure data directory exists
+        File dataDir = new File("data");
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
         // Initialize services to create default data
         initializeServices();
 
@@ -43,15 +49,31 @@ public class Main extends Application {
     }
 
     private void initializeServices() {
-        // Initialize authentication service (creates default users)
+        // Initialize services in the correct order
+        // (first initialize services that don't depend on others)
+
+        // 1. Initialize authentication service (creates default users)
         AuthService.getInstance();
 
-        // Initialize hospital service (creates default hospital and blocks)
+        // 2. Initialize hospital service (creates default hospital and blocks)
         HospitalService.getInstance();
 
-        // Initialize patient service (creates sample patient data)
+        // 3. Initialize doctor service (depends on hospital blocks)
+        DoctorService.getInstance();
+
+        // 4. Initialize patient service (creates sample patient data)
         PatientService patientService = new PatientService();
         patientService.initializeWithSampleData();
+
+        // 5. Initialize appointment service (depends on doctors and patients)
+        AppointmentService.getInstance().cleanupDeletedDoctorAppointments();
+
+        // 6. Initialize medication and pharmacy services
+        MedicationService.getInstance();
+        PrescriptionService.getInstance();
+
+        // 7. Initialize medical test service
+        MedicalTestService.getInstance();
     }
 
     public static void main(String[] args) {

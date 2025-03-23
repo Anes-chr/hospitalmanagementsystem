@@ -1,42 +1,30 @@
 package com.hospital.controller;
 
-import com.hospital.model.EmergencyPatient;
-import com.hospital.model.InPatient;
-import com.hospital.model.OutPatient;
-import com.hospital.model.Patient;
+import com.hospital.model.*;
 import com.hospital.service.PatientService;
 import com.hospital.util.AlertUtil;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.scene.layout.HBox;  // Make sure this import is present
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Predicate;
 
 public class PatientManagementController implements Initializable {
 
@@ -44,13 +32,10 @@ public class PatientManagementController implements Initializable {
     private TextField searchField;
 
     @FXML
-    private Button searchButton;
+    private ComboBox<String> filterTypeCombo;
 
     @FXML
-    private ComboBox<String> typeFilterCombo;
-
-    @FXML
-    private Button addPatientButton;
+    private ComboBox<String> filterLocationCombo;
 
     @FXML
     private TableView<Patient> patientTable;
@@ -68,58 +53,22 @@ public class PatientManagementController implements Initializable {
     private TableColumn<Patient, String> genderColumn;
 
     @FXML
-    private TableColumn<Patient, String> typeColumn;
-
-    @FXML
     private TableColumn<Patient, String> contactColumn;
 
     @FXML
     private TableColumn<Patient, String> locationColumn;
 
     @FXML
-    private TableColumn<Patient, String> registrationDateColumn;
+    private TableColumn<Patient, String> typeColumn;
 
     @FXML
-    private TableColumn<Patient, String> actionColumn;
+    private TableColumn<Patient, Void> actionsColumn;
 
     @FXML
-    private GridPane detailsPane;
+    private Button addPatientButton;
 
     @FXML
-    private Label detailsIdLabel;
-
-    @FXML
-    private Label detailsTypeLabel;
-
-    @FXML
-    private Label detailsNameLabel;
-
-    @FXML
-    private Label detailsAgeLabel;
-
-    @FXML
-    private Label detailsGenderLabel;
-
-    @FXML
-    private Label detailsBloodGroupLabel;
-
-    @FXML
-    private Label detailsContactLabel;
-
-    @FXML
-    private Label detailsRegistrationLabel;
-
-    @FXML
-    private Label detailsAddressLabel;
-
-    @FXML
-    private Label detailsLocationLabel;
-
-    @FXML
-    private TextArea detailsSpecificLabel;
-
-    @FXML
-    private Label detailsBillLabel;
+    private Button viewDetailsButton;
 
     @FXML
     private Button editPatientButton;
@@ -131,252 +80,261 @@ public class PatientManagementController implements Initializable {
     private Button generateBillButton;
 
     @FXML
-    private Label totalCountLabel;
+    private Label totalPatientsLabel;
 
     @FXML
-    private Label inPatientCountLabel;
+    private Label inpatientsLabel;
 
     @FXML
-    private Label outPatientCountLabel;
+    private Label outpatientsLabel;
 
     @FXML
-    private Label emergencyCountLabel;
+    private Label emergencyLabel;
 
     private PatientService patientService;
-    private ObservableList<Patient> allPatients;
-    private FilteredList<Patient> filteredPatients;
-    private NumberFormat currencyFormatter;
+    private ObservableList<Patient> patientsData;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         patientService = new PatientService();
-        currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
-        // Initialize the combo box for filtering
-        typeFilterCombo.getItems().addAll("All Types", "InPatient", "OutPatient", "EmergencyPatient");
-        typeFilterCombo.getSelectionModel().selectFirst();
-
-        // Initialize table columns
+        // Initialize columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         ageColumn.setCellValueFactory(new PropertyValueFactory<>("age"));
         genderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));
-
-        typeColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPatientType()));
-
         contactColumn.setCellValueFactory(new PropertyValueFactory<>("contactNumber"));
 
-        locationColumn.setCellValueFactory(data -> {
-            if (data.getValue().getLocation() != null) {
-                return new SimpleStringProperty(data.getValue().getLocation().getBlockName());
-            } else {
-                return new SimpleStringProperty("N/A");
-            }
+        // Custom cell factory for location to display the full location
+        locationColumn.setCellValueFactory(cellData -> {
+            HospitalBlock location = cellData.getValue().getLocation();
+            return new SimpleStringProperty(location != null ? location.getFullLocation() : "N/A");
         });
 
-        registrationDateColumn.setCellValueFactory(new PropertyValueFactory<>("registrationDate"));
+        // Patient type column
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("patientType"));
 
-        // Add action buttons to each row
-        actionColumn.setCellFactory(createActionButtonCellFactory());
+        // Setup action buttons column
+        setupActionsColumn();
+
+        // Setup filter combos
+        filterTypeCombo.getItems().addAll("All Types", "InPatient", "OutPatient", "EmergencyPatient");
+        filterTypeCombo.setValue("All Types");
+        filterTypeCombo.setOnAction(event -> handleFilter());
+
+        filterLocationCombo.getItems().add("All Locations");
+
+        // Get unique locations from existing patients
+        List<Patient> patients = patientService.getAllPatients();
+        patients.stream()
+                .map(Patient::getLocation)
+                .filter(loc -> loc != null)
+                .map(HospitalBlock::getFullLocation)
+                .distinct()
+                .forEach(loc -> {
+                    if (!filterLocationCombo.getItems().contains(loc)) {
+                        filterLocationCombo.getItems().add(loc);
+                    }
+                });
+
+        filterLocationCombo.setValue("All Locations");
+        filterLocationCombo.setOnAction(event -> handleFilter());
+
+        // Setup search functionality
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> handleFilter());
+
+        // Setup selection listener for enabling/disabling buttons
+        patientTable.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> updateButtonStates(newValue));
 
         // Load patients
         loadPatients();
+    }
 
-        // Add selection listener to populate details
-        patientTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                showPatientDetails(newSelection);
-            }
-        });
+    private void setupActionsColumn() {
+        Callback<TableColumn<Patient, Void>, TableCell<Patient, Void>> cellFactory =
+                new Callback<>() {
+                    @Override
+                    public TableCell<Patient, Void> call(TableColumn<Patient, Void> param) {
+                        return new TableCell<>() {
+                            private final Button viewBtn = new Button("View");
+                            private final Button editBtn = new Button("Edit");
+                            private final Button deleteBtn = new Button("Delete");
 
-        // Set up search functionality
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> handleSearch());
+                            {
+                                viewBtn.getStyleClass().add("btn-sm");
+                                editBtn.getStyleClass().add("btn-sm");
+                                deleteBtn.getStyleClass().add("btn-sm");
+
+                                viewBtn.setOnAction(event -> {
+                                    Patient patient = getTableView().getItems().get(getIndex());
+                                    handleViewDetails(patient);
+                                });
+
+                                editBtn.setOnAction(event -> {
+                                    Patient patient = getTableView().getItems().get(getIndex());
+                                    handleEditPatient(patient);
+                                });
+
+                                deleteBtn.setOnAction(event -> {
+                                    Patient patient = getTableView().getItems().get(getIndex());
+                                    handleDeletePatient(patient);
+                                });
+                            }
+
+                            @Override
+                            public void updateItem(Void item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (empty) {
+                                    setGraphic(null);
+                                } else {
+                                    HBox hbox = new HBox(5);
+                                    hbox.getChildren().addAll(viewBtn, editBtn, deleteBtn);
+                                    setGraphic(hbox);
+                                }
+                            }
+                        };
+                    }
+                };
+
+        actionsColumn.setCellFactory(cellFactory);
     }
 
     private void loadPatients() {
-        // Initialize with sample data if empty
-        patientService.initializeWithSampleData();
+        try {
+            List<Patient> patients = patientService.getAllPatients();
+            patientsData = FXCollections.observableArrayList(patients);
+            patientTable.setItems(patientsData);
 
-        List<Patient> patients = patientService.getAllPatients();
-        allPatients = FXCollections.observableArrayList(patients);
-
-        // Create filtered list
-        filteredPatients = new FilteredList<>(allPatients, p -> true);
-        patientTable.setItems(filteredPatients);
-
-        // Update counts
-        updatePatientCounts();
-    }
-
-    private void updatePatientCounts() {
-        int totalCount = allPatients.size();
-        int inPatientCount = (int) allPatients.stream()
-                .filter(p -> p.getPatientType().equals("InPatient"))
-                .count();
-        int outPatientCount = (int) allPatients.stream()
-                .filter(p -> p.getPatientType().equals("OutPatient"))
-                .count();
-        int emergencyCount = (int) allPatients.stream()
-                .filter(p -> p.getPatientType().equals("EmergencyPatient"))
-                .count();
-
-        totalCountLabel.setText(String.valueOf(totalCount));
-        inPatientCountLabel.setText(String.valueOf(inPatientCount));
-        outPatientCountLabel.setText(String.valueOf(outPatientCount));
-        emergencyCountLabel.setText(String.valueOf(emergencyCount));
-    }
-
-    private Callback<TableColumn<Patient, String>, TableCell<Patient, String>> createActionButtonCellFactory() {
-        return new Callback<>() {
-            @Override
-            public TableCell<Patient, String> call(TableColumn<Patient, String> param) {
-                return new TableCell<>() {
-                    private final Button viewBtn = new Button("View");
-                    private final Button editBtn = new Button("Edit");
-                    private final Button deleteBtn = new Button("Delete");
-
-                    {
-                        viewBtn.setOnAction(event -> {
-                            Patient patient = getTableRow().getItem();
-                            if (patient != null) {
-                                showPatientDetails(patient);
-                            }
-                        });
-
-                        editBtn.setOnAction(event -> {
-                            Patient patient = getTableRow().getItem();
-                            if (patient != null) {
-                                handleEditPatient(patient);
-                            }
-                        });
-
-                        deleteBtn.setOnAction(event -> {
-                            Patient patient = getTableRow().getItem();
-                            if (patient != null) {
-                                handleDeletePatient(patient);
-                            }
-                        });
-                    }
-
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            HBox buttons = new HBox(5);
-                            buttons.getChildren().addAll(viewBtn, editBtn, deleteBtn);
-                            setGraphic(buttons);
-                        }
-                    }
-                };
-            }
-        };
-    }
-
-    private void showPatientDetails(Patient patient) {
-        detailsIdLabel.setText(patient.getId());
-        detailsTypeLabel.setText(patient.getPatientType());
-        detailsNameLabel.setText(patient.getName());
-        detailsAgeLabel.setText(String.valueOf(patient.getAge()));
-        detailsGenderLabel.setText(patient.getGender());
-        detailsBloodGroupLabel.setText(patient.getBloodGroup());
-        detailsContactLabel.setText(patient.getContactNumber());
-        detailsRegistrationLabel.setText(patient.getRegistrationDate());
-        detailsAddressLabel.setText(patient.getAddress());
-
-        if (patient.getLocation() != null) {
-            detailsLocationLabel.setText(patient.getLocation().getFullLocation());
-        } else {
-            detailsLocationLabel.setText("N/A");
+            // Update statistics
+            updateStatistics(patients);
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Could not load patients: " + e.getMessage());
         }
+    }
 
-        detailsBillLabel.setText(currencyFormatter.format(patient.calculateBill()));
+    private void updateStatistics(List<Patient> patients) {
+        totalPatientsLabel.setText(String.valueOf(patients.size()));
 
-        // Show type-specific details
-        StringBuilder specificDetails = new StringBuilder();
+        long inpatientCount = patients.stream()
+                .filter(p -> p instanceof InPatient)
+                .count();
+        inpatientsLabel.setText(String.valueOf(inpatientCount));
 
-        if (patient instanceof InPatient) {
-            InPatient inPatient = (InPatient) patient;
-            specificDetails.append("Room Number: ").append(inPatient.getRoomNumber()).append("\n");
-            specificDetails.append("Admission Date: ").append(inPatient.getAdmissionDate()).append("\n");
-            specificDetails.append("Daily Rate: ").append(currencyFormatter.format(inPatient.getDailyRate())).append("\n");
-            specificDetails.append("Days Admitted: ").append(inPatient.getNumberOfDaysAdmitted()).append("\n");
-            specificDetails.append("Attending Doctor: ").append(inPatient.getAttendingDoctor()).append("\n");
-            if (inPatient.getDischargeDate() != null) {
-                specificDetails.append("Discharge Date: ").append(inPatient.getDischargeDate());
-            }
-        } else if (patient instanceof OutPatient) {
-            OutPatient outPatient = (OutPatient) patient;
-            specificDetails.append("Appointment Date: ").append(outPatient.getAppointmentDate()).append("\n");
-            specificDetails.append("Consult Fee: ").append(currencyFormatter.format(outPatient.getConsultFee())).append("\n");
-            specificDetails.append("Consulting Doctor: ").append(outPatient.getConsultingDoctor()).append("\n");
-            specificDetails.append("Diagnosis: ").append(outPatient.getDiagnosis());
-        } else if (patient instanceof EmergencyPatient) {
-            EmergencyPatient emergencyPatient = (EmergencyPatient) patient;
-            specificDetails.append("Severity Level: ").append(emergencyPatient.getSeverityLevel()).append("\n");
-            specificDetails.append("Emergency Contact: ").append(emergencyPatient.getEmergencyContact()).append("\n");
-            specificDetails.append("Treatment Details: ").append(emergencyPatient.getTreatmentDetails()).append("\n");
-            specificDetails.append("Admission Time: ").append(emergencyPatient.getAdmissionTime()).append("\n");
-            specificDetails.append("Treatment Cost: ").append(currencyFormatter.format(emergencyPatient.getEmergencyTreatmentCost()));
-        }
+        long outpatientCount = patients.stream()
+                .filter(p -> p instanceof OutPatient)
+                .count();
+        outpatientsLabel.setText(String.valueOf(outpatientCount));
 
-        detailsSpecificLabel.setText(specificDetails.toString());
+        long emergencyCount = patients.stream()
+                .filter(p -> p instanceof EmergencyPatient)
+                .count();
+        emergencyLabel.setText(String.valueOf(emergencyCount));
+    }
+
+    private void updateButtonStates(Patient selectedPatient) {
+        boolean hasSelection = selectedPatient != null;
+        viewDetailsButton.setDisable(!hasSelection);
+        editPatientButton.setDisable(!hasSelection);
+        deletePatientButton.setDisable(!hasSelection);
+        generateBillButton.setDisable(!hasSelection);
     }
 
     @FXML
-    public void handleSearch() {
+    private void handleFilter() {
         String searchText = searchField.getText().toLowerCase();
-        String selectedType = typeFilterCombo.getValue();
+        String typeFilter = filterTypeCombo.getValue();
+        String locationFilter = filterLocationCombo.getValue();
 
-        Predicate<Patient> typeFilter;
-        if (selectedType.equals("All Types")) {
-            typeFilter = p -> true;
-        } else {
-            typeFilter = p -> p.getPatientType().equals(selectedType);
+        List<Patient> allPatients = patientService.getAllPatients();
+
+        // Apply type filter
+        if (!"All Types".equals(typeFilter)) {
+            allPatients = patientService.getPatientsByType(typeFilter);
         }
 
-        Predicate<Patient> searchFilter;
-        if (searchText.isEmpty()) {
-            searchFilter = p -> true;
-        } else {
-            searchFilter = p ->
-                    p.getName().toLowerCase().contains(searchText) ||
-                            p.getContactNumber().toLowerCase().contains(searchText) ||
-                            (p.getAddress() != null && p.getAddress().toLowerCase().contains(searchText));
+        // Apply location filter
+        if (!"All Locations".equals(locationFilter)) {
+            final String location = locationFilter;
+            allPatients = allPatients.stream()
+                    .filter(p -> p.getLocation() != null &&
+                            p.getLocation().getFullLocation().contains(location))
+                    .toList();
         }
 
-        filteredPatients.setPredicate(typeFilter.and(searchFilter));
+        // Apply search text
+        if (!searchText.isEmpty()) {
+            final String search = searchText;
+            allPatients = allPatients.stream()
+                    .filter(p -> p.getName().toLowerCase().contains(search) ||
+                            (p.getContactNumber() != null && p.getContactNumber().toLowerCase().contains(search)))
+                    .toList();
+        }
+
+        patientsData = FXCollections.observableArrayList(allPatients);
+        patientTable.setItems(patientsData);
+
+        // Update statistics
+        updateStatistics(allPatients);
     }
 
     @FXML
-    public void handleFilterChange() {
-        handleSearch(); // Re-filter with new type selection
-    }
-
-    @FXML
-    public void handleAddPatient() {
+    public void handleAddPatient(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hospital/view/NewPatient.fxml"));
-            Parent newPatientView = loader.load();
+            Parent root = loader.load();
 
             Stage stage = new Stage();
             stage.setTitle("Add New Patient");
             stage.initModality(Modality.APPLICATION_MODAL);
 
-            Scene scene = new Scene(newPatientView);
+            Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/hospital/css/darkTheme.css").toExternalForm());
 
             stage.setScene(scene);
             stage.showAndWait();
 
-            // Refresh patient list
+            // Refresh the table to show the new patient
             loadPatients();
 
         } catch (IOException e) {
             e.printStackTrace();
-            AlertUtil.showError("Error", "Could not load new patient form: " + e.getMessage());
+            AlertUtil.showError("Error", "Could not open add patient form: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void handleViewDetails() {
+        Patient selectedPatient = patientTable.getSelectionModel().getSelectedItem();
+        if (selectedPatient != null) {
+            handleViewDetails(selectedPatient);
+        } else {
+            AlertUtil.showWarning("No Selection", "Please select a patient to view.");
+        }
+    }
+
+    private void handleViewDetails(Patient patient) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hospital/view/PatientDetails.fxml"));
+            Parent root = loader.load();
+
+            PatientDetailsController controller = loader.getController();
+            controller.initData(patient);
+
+            Stage stage = new Stage();
+            stage.setTitle("Patient Details");
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/hospital/css/darkTheme.css").toExternalForm());
+
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Could not open patient details: " + e.getMessage());
         }
     }
 
@@ -386,13 +344,35 @@ public class PatientManagementController implements Initializable {
         if (selectedPatient != null) {
             handleEditPatient(selectedPatient);
         } else {
-            AlertUtil.showWarning("Selection Required", "Please select a patient to edit.");
+            AlertUtil.showWarning("No Selection", "Please select a patient to edit.");
         }
     }
 
     private void handleEditPatient(Patient patient) {
-        // In a real app, this would load the edit form with patient data
-        AlertUtil.showInformation("Coming Soon", "Patient editing will be implemented in a future update.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hospital/view/EditPatient.fxml"));
+            Parent root = loader.load();
+
+            EditPatientController controller = loader.getController();
+            controller.initData(patient);
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Patient");
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/hospital/css/darkTheme.css").toExternalForm());
+
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            // Refresh the table to show updated patient info
+            loadPatients();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Could not open edit patient form: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -401,22 +381,28 @@ public class PatientManagementController implements Initializable {
         if (selectedPatient != null) {
             handleDeletePatient(selectedPatient);
         } else {
-            AlertUtil.showWarning("Selection Required", "Please select a patient to delete.");
+            AlertUtil.showWarning("No Selection", "Please select a patient to delete.");
         }
     }
 
     private void handleDeletePatient(Patient patient) {
-        boolean confirm = AlertUtil.showConfirmation("Confirm Deletion",
-                "Are you sure you want to delete the patient record for " + patient.getName() + "?");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Patient");
+        alert.setHeaderText("Delete Patient: " + patient.getName());
+        alert.setContentText("Are you sure you want to delete this patient? This action cannot be undone.");
 
-        if (confirm) {
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 patientService.deletePatient(patient.getId());
+
+                // Refresh the table
                 loadPatients();
-                AlertUtil.showInformation("Success", "Patient record deleted successfully.");
+
+                AlertUtil.showInformation("Success", "Patient deleted successfully.");
             } catch (IOException e) {
                 e.printStackTrace();
-                AlertUtil.showError("Error", "Could not delete patient record: " + e.getMessage());
+                AlertUtil.showError("Error", "Could not delete patient: " + e.getMessage());
             }
         }
     }
@@ -427,7 +413,7 @@ public class PatientManagementController implements Initializable {
         if (selectedPatient != null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hospital/view/BillView.fxml"));
-                Parent billView = loader.load();
+                Parent root = loader.load();
 
                 BillViewController controller = loader.getController();
                 controller.initData(selectedPatient);
@@ -436,18 +422,26 @@ public class PatientManagementController implements Initializable {
                 stage.setTitle("Patient Bill");
                 stage.initModality(Modality.APPLICATION_MODAL);
 
-                Scene scene = new Scene(billView);
+                Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/hospital/css/darkTheme.css").toExternalForm());
 
                 stage.setScene(scene);
-                stage.showAndWait();
+                stage.show();
 
             } catch (IOException e) {
                 e.printStackTrace();
                 AlertUtil.showError("Error", "Could not generate bill: " + e.getMessage());
             }
         } else {
-            AlertUtil.showWarning("Selection Required", "Please select a patient to generate a bill.");
+            AlertUtil.showWarning("No Selection", "Please select a patient to generate a bill.");
         }
+    }
+
+    @FXML
+    public void handleRefresh() {
+        loadPatients();
+        searchField.clear();
+        filterTypeCombo.setValue("All Types");
+        filterLocationCombo.setValue("All Locations");
     }
 }

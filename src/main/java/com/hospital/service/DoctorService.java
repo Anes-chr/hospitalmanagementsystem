@@ -1,25 +1,21 @@
 package com.hospital.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hospital.dao.DoctorDao;
 import com.hospital.model.Doctor;
 import com.hospital.model.HospitalBlock;
 import com.hospital.util.DateUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class DoctorService {
     private static DoctorService instance;
-    private final String DOCTORS_FILE = "data/doctors.json";
-    private final ObjectMapper objectMapper;
-    private List<Doctor> doctors;
+    private final DoctorDao doctorDao;
 
     private DoctorService() {
-        objectMapper = new ObjectMapper();
+        doctorDao = new DoctorDao();
         loadDoctors();
     }
 
@@ -31,44 +27,36 @@ public class DoctorService {
     }
 
     private void loadDoctors() {
-        File file = new File(DOCTORS_FILE);
-        if (file.exists()) {
-            try {
-                doctors = objectMapper.readValue(file,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, Doctor.class));
-            } catch (IOException e) {
-                e.printStackTrace();
-                createDefaultDoctors();
-            }
-        } else {
+        List<Doctor> doctors = doctorDao.getAllEntities();
+        if (doctors.isEmpty()) {
             createDefaultDoctors();
         }
     }
 
     private void createDefaultDoctors() {
-        doctors = new ArrayList<>();
-        HospitalService hospitalService = HospitalService.getInstance();
-        List<HospitalBlock> blocks = hospitalService.getAllBlocks();
-
-        // Safety check - if blocks list is empty, create a default block
-        if (blocks == null || blocks.isEmpty()) {
-            try {
-                // Create a default block
-                HospitalBlock defaultBlock = new HospitalBlock("A", 1, "General Medicine");
-                hospitalService.addBlock(defaultBlock);
-                blocks = hospitalService.getAllBlocks(); // Get updated list
-            } catch (Exception e) {
-                e.printStackTrace();
-                // If we still can't create a block, create an empty list
-                blocks = new ArrayList<>();
-                blocks.add(new HospitalBlock("A", 1, "General Medicine"));
-            }
-        }
-
-        // Get the first block or create a default one if list is still empty
-        HospitalBlock firstBlock = blocks.isEmpty() ? new HospitalBlock("A", 1, "General Medicine") : blocks.get(0);
-
         try {
+            HospitalService hospitalService = HospitalService.getInstance();
+            List<HospitalBlock> blocks = hospitalService.getAllBlocks();
+
+            // Safety check - if blocks list is empty, create a default block
+            if (blocks == null || blocks.isEmpty()) {
+                try {
+                    // Create a default block
+                    HospitalBlock defaultBlock = new HospitalBlock("A", 1, "General Medicine");
+                    hospitalService.addBlock(defaultBlock);
+                    blocks = hospitalService.getAllBlocks(); // Get updated list
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // If we still can't create a block, create an empty list
+                    blocks = new ArrayList<>();
+                    blocks.add(new HospitalBlock("A", 1, "General Medicine"));
+                }
+            }
+
+            // Get the first block or create a default one if list is still empty
+            HospitalBlock firstBlock = blocks.isEmpty() ?
+                    new HospitalBlock("A", 1, "General Medicine") : blocks.get(0);
+
             // Create default doctors
             Doctor doc1 = new Doctor("john.smith", "password", "Dr. John Smith", "jsmith@hospital.com",
                     "Cardiology", "MD12345",
@@ -95,13 +83,11 @@ public class DoctorService {
                     findBlockBySpecialty(blocks, "Emergency", firstBlock),
                     "555-7890", "All shifts (rotating)");
 
-            doctors.add(doc1);
-            doctors.add(doc2);
-            doctors.add(doc3);
-            doctors.add(doc4);
-            doctors.add(doc5);
-
-            saveDoctors();
+            addDoctor(doc1);
+            addDoctor(doc2);
+            addDoctor(doc3);
+            addDoctor(doc4);
+            addDoctor(doc5);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,61 +102,74 @@ public class DoctorService {
     }
 
     public List<Doctor> getAllDoctors() {
-        return doctors;
+        return doctorDao.getAllEntities();
     }
 
     public List<Doctor> getDoctorsBySpecialty(String specialty) {
-        return doctors.stream()
+        if (specialty == null || specialty.trim().isEmpty()) {
+            return getAllDoctors();
+        }
+
+        return doctorDao.getAllEntities().stream()
                 .filter(d -> d.getSpecialization().equalsIgnoreCase(specialty))
                 .collect(Collectors.toList());
     }
 
     public List<Doctor> getAvailableDoctors() {
-        return doctors.stream()
+        return doctorDao.getAllEntities().stream()
                 .filter(Doctor::isAvailable)
                 .collect(Collectors.toList());
     }
 
     public Doctor getDoctorById(String id) {
-        return doctors.stream()
-                .filter(d -> d.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        if (id == null || id.trim().isEmpty()) {
+            return null;
+        }
+        return doctorDao.getById(id);
     }
 
     public Doctor getDoctorByUsername(String username) {
-        return doctors.stream()
+        if (username == null || username.trim().isEmpty()) {
+            return null;
+        }
+
+        return doctorDao.getAllEntities().stream()
                 .filter(d -> d.getUsername().equals(username))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void addDoctor(Doctor doctor) throws IOException {
-        if (doctor.getId() == null || doctor.getId().isEmpty()) {
-            doctor.setId(UUID.randomUUID().toString());
+    public List<Doctor> searchDoctors(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllDoctors();
         }
-        doctors.add(doctor);
-        saveDoctors();
+
+        String searchTerm = query.toLowerCase();
+        return doctorDao.getAllEntities().stream()
+                .filter(d -> d.getFullName().toLowerCase().contains(searchTerm) ||
+                        d.getSpecialization().toLowerCase().contains(searchTerm) ||
+                        d.getLicenseNumber().toLowerCase().contains(searchTerm))
+                .collect(Collectors.toList());
+    }
+
+    public void addDoctor(Doctor doctor) throws IOException {
+        if (doctor.getLastLogin() == null) {
+            doctor.setLastLogin(DateUtil.getCurrentDateTime());
+        }
+        doctorDao.save(doctor);
     }
 
     public void updateDoctor(Doctor doctor) throws IOException {
-        for (int i = 0; i < doctors.size(); i++) {
-            if (doctors.get(i).getId().equals(doctor.getId())) {
-                doctors.set(i, doctor);
-                break;
-            }
-        }
-        saveDoctors();
+        doctorDao.update(doctor);
     }
 
     public void deleteDoctor(String id) throws IOException {
-        doctors.removeIf(d -> d.getId().equals(id));
-        saveDoctors();
+        doctorDao.delete(id);
     }
 
-    private void saveDoctors() throws IOException {
-        File file = new File(DOCTORS_FILE);
-        file.getParentFile().mkdirs();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, doctors);
+    public boolean isDoctorUsed(String doctorId) {
+        // Check if doctor is used in appointments or other records
+        AppointmentService appointmentService = AppointmentService.getInstance();
+        return appointmentService.hasDoctorAppointments(doctorId);
     }
 }
