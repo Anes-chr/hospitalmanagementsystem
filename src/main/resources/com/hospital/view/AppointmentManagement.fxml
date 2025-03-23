@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.AppointmentManagementController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="Appointment Management" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Date Selector -->
+        <HBox spacing="5" alignment="CENTER">
+            <Label text="Date:" />
+            <DatePicker fx:id="datePicker" onAction="#handleDateChange" />
+        </HBox>
+
+        <!-- Filter -->
+        <HBox spacing="5" alignment="CENTER">
+            <Label text="Status:" />
+            <ComboBox fx:id="statusFilterCombo" prefWidth="150" onAction="#handleFilterChange" />
+        </HBox>
+
+        <!-- Schedule Appointment Button -->
+        <Button fx:id="scheduleButton" text="Schedule Appointment" onAction="#handleScheduleAppointment" styleClass="primary" />
+    </HBox>
+
+    <!-- Appointment Table -->
+    <TableView fx:id="appointmentTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="80" />
+            <TableColumn fx:id="patientColumn" text="Patient" prefWidth="150" />
+            <TableColumn fx:id="doctorColumn" text="Doctor" prefWidth="150" />
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="100" />
+            <TableColumn fx:id="timeColumn" text="Time" prefWidth="80" />
+            <TableColumn fx:id="durationColumn" text="Duration" prefWidth="80" />
+            <TableColumn fx:id="purposeColumn" text="Purpose" prefWidth="150" />
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="100" />
+            <TableColumn fx:id="actionColumn" text="Actions" prefWidth="150" />
+        </columns>
+    </TableView>
+
+    <!-- Appointment Details Section -->
+    <TitledPane text="Appointment Details" expanded="false" VBox.vgrow="NEVER">
+        <VBox spacing="10">
+            <GridPane fx:id="detailsPane" hgap="15" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                </columnConstraints>
+
+                <!-- Row 1 -->
+                <Label text="Appointment ID:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <Label fx:id="detailsIdLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="Status:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <Label fx:id="detailsStatusLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <!-- Row 2 -->
+                <Label text="Patient:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <Label fx:id="detailsPatientLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Doctor:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <Label fx:id="detailsDoctorLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+                <!-- Row 3 -->
+                <Label text="Date:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <Label fx:id="detailsDateLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Time:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                <Label fx:id="detailsTimeLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+                <!-- Row 4 -->
+                <Label text="Duration:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <Label fx:id="detailsDurationLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Location:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                <Label fx:id="detailsLocationLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+
+                <!-- Row 5 -->
+                <Label text="Purpose:" GridPane.rowIndex="4" GridPane.columnIndex="0" valignment="TOP" />
+                <Label fx:id="detailsPurposeLabel" text="-" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="3" wrapText="true" />
+
+                <!-- Row 6 -->
+                <Label text="Notes:" GridPane.rowIndex="5" GridPane.columnIndex="0" valignment="TOP" />
+                <TextArea fx:id="detailsNotesArea" editable="false" prefHeight="80" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+                <!-- Actions -->
+                <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.columnSpan="4" alignment="CENTER_RIGHT">
+                    <Button fx:id="editAppointmentButton" text="Edit Appointment" onAction="#handleEditAppointment" />
+                    <Button fx:id="cancelAppointmentButton" text="Cancel Appointment" onAction="#handleCancelAppointment" styleClass="danger" />
+                    <Button fx:id="completeAppointmentButton" text="Mark as Completed" onAction="#handleCompleteAppointment" styleClass="success" />
+                </HBox>
+            </GridPane>
+        </VBox>
+    </TitledPane>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Today's Appointments:" />
+        <Label fx:id="todayCountLabel" text="0" style="-fx-font-weight: bold;" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Scheduled:" />
+        <Label fx:id="scheduledCountLabel" text="0" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Completed:" />
+        <Label fx:id="completedCountLabel" text="0" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Cancelled:" />
+        <Label fx:id="cancelledCountLabel" text="0" />
+    </HBox>
+</VBox>

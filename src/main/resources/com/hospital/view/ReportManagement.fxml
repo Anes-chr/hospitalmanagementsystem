@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.ReportManagementController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="Report Management" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Date Range Picker -->
+        <HBox spacing="5" alignment="CENTER">
+            <Label text="From:" />
+            <DatePicker fx:id="fromDatePicker" />
+            <Label text="To:" />
+            <DatePicker fx:id="toDatePicker" />
+        </HBox>
+
+        <!-- Report Types -->
+        <ComboBox fx:id="reportTypeComboBox" promptText="Select Report Type" prefWidth="200" />
+
+        <!-- Generate Button -->
+        <Button fx:id="generateReportButton" text="Generate Report" onAction="#handleGenerateReport" styleClass="primary" />
+        <Button fx:id="exportReportButton" text="Export Report" onAction="#handleExportReport" />
+    </HBox>
+
+    <!-- Content Area -->
+    <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+        <!-- Charts and Statistics Section -->
+        <VBox spacing="10">
+            <TabPane fx:id="chartTabPane" VBox.vgrow="ALWAYS">
+                <Tab text="Patient Statistics" closable="false">
+                    <VBox spacing="10">
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Patient Distribution -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Patient Distribution by Type" styleClass="section-title" />
+                                <PieChart fx:id="patientTypeChart" VBox.vgrow="ALWAYS" />
+                            </VBox>
+
+                            <!-- Gender Distribution -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Patient Distribution by Gender" styleClass="section-title" />
+                                <PieChart fx:id="patientGenderChart" VBox.vgrow="ALWAYS" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Age Distribution -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Patient Age Distribution" styleClass="section-title" />
+                                <BarChart fx:id="patientAgeChart" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Age Groups" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Count" />
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Financial Statistics" closable="false">
+                    <VBox spacing="10">
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Revenue by Patient Type -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Revenue by Patient Type" styleClass="section-title" />
+                                <BarChart fx:id="revenueByTypeChart" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Patient Type" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Revenue ($)" />
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+
+                            <!-- Revenue by Month -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Revenue by Month" styleClass="section-title" />
+                                <LineChart fx:id="revenueByMonthChart" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Month" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Revenue ($)" />
+                                    </yAxis>
+                                </LineChart>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Pharmacy Statistics" closable="false">
+                    <VBox spacing="10">
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Medication by Category -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Medication Stock Value by Category" styleClass="section-title" />
+                                <PieChart fx:id="medicationCategoryChart" VBox.vgrow="ALWAYS" />
+                            </VBox>
+
+                            <!-- Low Stock Items -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Low Stock Medications" styleClass="section-title" />
+                                <TableView fx:id="lowStockTable" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="lowStockNameColumn" text="Name" prefWidth="150" />
+                                        <TableColumn fx:id="lowStockCategoryColumn" text="Category" prefWidth="100" />
+                                        <TableColumn fx:id="lowStockQuantityColumn" text="Quantity" prefWidth="80" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Appointment Statistics" closable="false">
+                    <VBox spacing="10">
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Appointments by Day -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Appointments by Day" styleClass="section-title" />
+                                <LineChart fx:id="appointmentByDayChart" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Date" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Count" />
+                                    </yAxis>
+                                </LineChart>
+                            </VBox>
+
+                            <!-- Appointments by Status -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Appointments by Status" styleClass="section-title" />
+                                <PieChart fx:id="appointmentStatusChart" VBox.vgrow="ALWAYS" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Doctor Statistics" closable="false">
+                    <VBox spacing="10">
+                        <HBox spacing="15" VBox.vgrow="ALWAYS">
+                            <!-- Appointments by Doctor -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="Appointments by Doctor" styleClass="section-title" />
+                                <BarChart fx:id="appointmentByDoctorChart" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Doctor" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Count" />
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </VBox>
+
+        <!-- Report Text Area -->
+        <VBox spacing="10">
+            <Label text="Generated Report" styleClass="section-title" />
+            <TextArea fx:id="reportTextArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true" />
+        </VBox>
+    </SplitPane>
+</VBox>

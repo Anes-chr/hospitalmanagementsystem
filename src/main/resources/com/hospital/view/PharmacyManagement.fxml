@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.PharmacyManagementController">
+    <Tab text="Medication Inventory" closable="false">
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Medication Inventory" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Search bar -->
+                <HBox spacing="5" styleClass="search-box" alignment="CENTER">
+                    <Label text="Search:" />
+                    <TextField fx:id="searchMedicationField" promptText="Search by name" prefWidth="250" onKeyReleased="#handleMedicationSearch" />
+                    <Button text="Search" onAction="#handleMedicationSearch" />
+                </HBox>
+
+                <!-- Filter -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Category:" />
+                    <ComboBox fx:id="categoryFilterCombo" prefWidth="150" onAction="#handleCategoryFilter" />
+                </HBox>
+
+                <!-- Add Medication Button -->
+                <Button fx:id="addMedicationButton" text="Add Medication" onAction="#handleAddMedication" styleClass="primary" />
+            </HBox>
+
+            <!-- Medication Table -->
+            <TableView fx:id="medicationTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="medIdColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="medNameColumn" text="Name" prefWidth="150" />
+                    <TableColumn fx:id="medCategoryColumn" text="Category" prefWidth="120" />
+                    <TableColumn fx:id="medDosageFormColumn" text="Dosage Form" prefWidth="120" />
+                    <TableColumn fx:id="medPriceColumn" text="Unit Price" prefWidth="100" />
+                    <TableColumn fx:id="medStockColumn" text="Stock" prefWidth="80" />
+                    <TableColumn fx:id="medManufacturerColumn" text="Manufacturer" prefWidth="120" />
+                    <TableColumn fx:id="medExpiryColumn" text="Expiry Date" prefWidth="120" />
+                    <TableColumn fx:id="medRequiresPrescriptionColumn" text="Prescription" prefWidth="100" />
+                    <TableColumn fx:id="medActionColumn" text="Actions" prefWidth="150" />
+                </columns>
+            </TableView>
+
+            <!-- Status Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Total Medications:" />
+                <Label fx:id="totalMedicationsLabel" text="0" style="-fx-font-weight: bold;" />
+
+                <Separator orientation="VERTICAL" />
+
+                <Label text="Low Stock:" />
+                <Label fx:id="lowStockLabel" text="0" style="-fx-text-fill: #ff9800;" />
+
+                <Separator orientation="VERTICAL" />
+
+                <Label text="Out of Stock:" />
+                <Label fx:id="outOfStockLabel" text="0" style="-fx-text-fill: #e53935;" />
+            </HBox>
+        </VBox>
+    </Tab>
+
+    <Tab text="Prescriptions" closable="false">
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Prescriptions" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Filter -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Status:" />
+                    <ComboBox fx:id="prescriptionStatusCombo" prefWidth="150" onAction="#handlePrescriptionStatusFilter" />
+                </HBox>
+
+                <!-- Create Prescription Button -->
+                <Button fx:id="createPrescriptionButton" text="Create Prescription" onAction="#handleCreatePrescription" styleClass="primary" />
+            </HBox>
+
+            <!-- Prescription Table -->
+            <TableView fx:id="prescriptionTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="prescIdColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="prescPatientColumn" text="Patient" prefWidth="150" />
+                    <TableColumn fx:id="prescDoctorColumn" text="Doctor" prefWidth="150" />
+                    <TableColumn fx:id="prescDateColumn" text="Date" prefWidth="100" />
+                    <TableColumn fx:id="prescItemsColumn" text="Items" prefWidth="80" />
+                    <TableColumn fx:id="prescTotalColumn" text="Total Cost" prefWidth="100" />
+                    <TableColumn fx:id="prescStatusColumn" text="Status" prefWidth="100" />
+                    <TableColumn fx:id="prescActionColumn" text="Actions" prefWidth="150" />
+                </columns>
+            </TableView>
+
+            <!-- Status Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Total Prescriptions:" />
+                <Label fx:id="totalPrescriptionsLabel" text="0" style="-fx-font-weight: bold;" />
+
+                <Separator orientation="VERTICAL" />
+
+                <Label text="Pending:" />
+                <Label fx:id="pendingPrescriptionsLabel" text="0" />
+
+                <Separator orientation="VERTICAL" />
+
+                <Label text="Fulfilled:" />
+                <Label fx:id="fulfilledPrescriptionsLabel" text="0" />
+            </HBox>
+        </VBox>
+    </Tab>
+</TabPane>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.PatientManagementController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="Patient Management" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Search bar -->
+        <HBox spacing="5" styleClass="search-box" alignment="CENTER">
+            <Label text="Search:" />
+            <TextField fx:id="searchField" promptText="Search by name" prefWidth="250" onKeyReleased="#handleSearch" />
+            <Button fx:id="searchButton" text="Search" onAction="#handleSearch" />
+        </HBox>
+
+        <!-- Filter -->
+        <HBox spacing="5" alignment="CENTER">
+            <Label text="Filter by Type:" />
+            <ComboBox fx:id="typeFilterCombo" prefWidth="150" onAction="#handleFilterChange" />
+        </HBox>
+
+        <!-- Add Patient Button -->
+        <Button fx:id="addPatientButton" text="Add New Patient" onAction="#handleAddPatient" styleClass="primary" />
+    </HBox>
+
+    <!-- Patient Table -->
+    <TableView fx:id="patientTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="80" />
+            <TableColumn fx:id="nameColumn" text="Name" prefWidth="150" />
+            <TableColumn fx:id="ageColumn" text="Age" prefWidth="60" />
+            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="80" />
+            <TableColumn fx:id="typeColumn" text="Patient Type" prefWidth="120" />
+            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="120" />
+            <TableColumn fx:id="locationColumn" text="Location" prefWidth="150" />
+            <TableColumn fx:id="registrationDateColumn" text="Registration Date" prefWidth="120" />
+            <TableColumn fx:id="actionColumn" text="Actions" prefWidth="150" />
+        </columns>
+    </TableView>
+
+    <!-- Patient Details Section -->
+    <TitledPane text="Patient Details" expanded="false" VBox.vgrow="NEVER">
+        <VBox spacing="10">
+            <GridPane fx:id="detailsPane" hgap="15" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                </columnConstraints>
+
+                <!-- Row 1 -->
+                <Label text="Patient ID:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <Label fx:id="detailsIdLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="Patient Type:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <Label fx:id="detailsTypeLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <!-- Row 2 -->
+                <Label text="Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <Label fx:id="detailsNameLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Age:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <Label fx:id="detailsAgeLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+                <!-- Row 3 -->
+                <Label text="Gender:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <Label fx:id="detailsGenderLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Blood Group:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                <Label fx:id="detailsBloodGroupLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+                <!-- Row 4 -->
+                <Label text="Contact:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <Label fx:id="detailsContactLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Registration Date:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                <Label fx:id="detailsRegistrationLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+
+                <!-- Row 5 -->
+                <Label text="Address:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <Label fx:id="detailsAddressLabel" text="-" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+                <!-- Row 6 -->
+                <Label text="Location:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <Label fx:id="detailsLocationLabel" text="-" GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+                <!-- Type Specific Details Row -->
+                <Label text="Type-specific Details:" GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.valignment="TOP" />
+                <TextArea fx:id="detailsSpecificLabel" editable="false" prefHeight="100" wrapText="true" GridPane.rowIndex="6" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+
+                <!-- Billing Information -->
+                <Label text="Bill Amount:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <Label fx:id="detailsBillLabel" text="-" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+                <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="2" GridPane.columnSpan="2" alignment="CENTER_RIGHT">
+                    <Button fx:id="editPatientButton" text="Edit Patient" onAction="#handleEditPatient" />
+                    <Button fx:id="deletePatientButton" text="Delete Patient" onAction="#handleDeletePatient" styleClass="danger" />
+                    <Button fx:id="generateBillButton" text="Generate Bill" onAction="#handleGenerateBill" styleClass="success" />
+                </HBox>
+            </GridPane>
+        </VBox>
+    </TitledPane>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Total Patients:" />
+        <Label fx:id="totalCountLabel" text="0" style="-fx-font-weight: bold;" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="InPatients:" />
+        <Label fx:id="inPatientCountLabel" text="0" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="OutPatients:" />
+        <Label fx:id="outPatientCountLabel" text="0" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Emergency Patients:" />
+        <Label fx:id="emergencyCountLabel" text="0" />
+    </HBox>
+</VBox>

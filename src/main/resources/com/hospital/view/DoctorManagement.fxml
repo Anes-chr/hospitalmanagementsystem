@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.DoctorManagementController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="Doctor Management" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Search bar -->
+        <HBox spacing="5" styleClass="search-box" alignment="CENTER">
+            <Label text="Search:" />
+            <TextField fx:id="searchField" promptText="Search by name" prefWidth="250" onKeyReleased="#handleSearch" />
+            <Button fx:id="searchButton" text="Search" onAction="#handleSearch" />
+        </HBox>
+
+        <!-- Filter -->
+        <HBox spacing="5" alignment="CENTER">
+            <Label text="Filter by Specialty:" />
+            <ComboBox fx:id="specialtyFilterCombo" prefWidth="150" onAction="#handleFilterChange" />
+        </HBox>
+
+        <!-- Add Doctor Button -->
+        <Button fx:id="addDoctorButton" text="Add New Doctor" onAction="#handleAddDoctor" styleClass="primary" />
+    </HBox>
+
+    <!-- Doctor Table -->
+    <TableView fx:id="doctorTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="80" />
+            <TableColumn fx:id="nameColumn" text="Name" prefWidth="150" />
+            <TableColumn fx:id="specializationColumn" text="Specialization" prefWidth="150" />
+            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="120" />
+            <TableColumn fx:id="locationColumn" text="Block" prefWidth="100" />
+            <TableColumn fx:id="availabilityColumn" text="Available" prefWidth="80" />
+            <TableColumn fx:id="workingHoursColumn" text="Working Hours" prefWidth="150" />
+            <TableColumn fx:id="actionColumn" text="Actions" prefWidth="150" />
+        </columns>
+    </TableView>
+
+    <!-- Doctor Details Section -->
+    <TitledPane text="Doctor Details" expanded="false" VBox.vgrow="NEVER">
+        <VBox spacing="10">
+            <GridPane fx:id="detailsPane" hgap="15" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                    <ColumnConstraints minWidth="100" />
+                    <ColumnConstraints minWidth="200" />
+                </columnConstraints>
+
+                <!-- Row 1 -->
+                <Label text="Doctor ID:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <Label fx:id="detailsIdLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="License Number:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <Label fx:id="detailsLicenseLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <!-- Row 2 -->
+                <Label text="Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <Label fx:id="detailsNameLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Specialization:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <Label fx:id="detailsSpecializationLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+                <!-- Row 3 -->
+                <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <Label fx:id="detailsEmailLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Contact:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                <Label fx:id="detailsContactLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+                <!-- Row 4 -->
+                <Label text="Location:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <Label fx:id="detailsLocationLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Working Hours:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                <Label fx:id="detailsWorkingHoursLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+
+                <!-- Row 5 -->
+                <Label text="Availability:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <Label fx:id="detailsAvailabilityLabel" text="-" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                <Label text="Last Login:" GridPane.rowIndex="4" GridPane.columnIndex="2" />
+                <Label fx:id="detailsLastLoginLabel" text="-" GridPane.rowIndex="4" GridPane.columnIndex="3" />
+
+                <!-- Action buttons -->
+                <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="4" alignment="CENTER_RIGHT">
+                    <Button fx:id="editDoctorButton" text="Edit Doctor" onAction="#handleEditDoctor" />
+                    <Button fx:id="deleteDoctorButton" text="Delete Doctor" onAction="#handleDeleteDoctor" styleClass="danger" />
+                    <Button fx:id="viewAppointmentsButton" text="View Appointments" onAction="#handleViewAppointments" />
+                </HBox>
+            </GridPane>
+        </VBox>
+    </TitledPane>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Total Doctors:" />
+        <Label fx:id="totalCountLabel" text="0" style="-fx-font-weight: bold;" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Available:" />
+        <Label fx:id="availableCountLabel" text="0" />
+
+        <Separator orientation="VERTICAL" />
+
+        <Label text="Booked Today:" />
+        <Label fx:id="bookedTodayCountLabel" text="0" />
+    </HBox>
+</VBox>

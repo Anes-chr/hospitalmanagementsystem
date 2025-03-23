@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.MedicalTestManagementController">
+    <Tab text="Test Catalog" closable="false">
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Medical Test Catalog" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Search bar -->
+                <HBox spacing="5" styleClass="search-box" alignment="CENTER">
+                    <Label text="Search:" />
+                    <TextField fx:id="searchTestField" promptText="Search by name" prefWidth="250" onKeyReleased="#handleTestSearch" />
+                    <Button text="Search" onAction="#handleTestSearch" />
+                </HBox>
+
+                <!-- Filter -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Category:" />
+                    <ComboBox fx:id="testCategoryCombo" prefWidth="150" onAction="#handleTestCategoryFilter" />
+                </HBox>
+
+                <!-- Add Test Button -->
+                <Button fx:id="addTestButton" text="Add Medical Test" onAction="#handleAddTest" styleClass="primary" />
+            </HBox>
+
+            <!-- Test Table -->
+            <TableView fx:id="testTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="testIdColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="testNameColumn" text="Name" prefWidth="200" />
+                    <TableColumn fx:id="testCategoryColumn" text="Category" prefWidth="120" />
+                    <TableColumn fx:id="testDurationColumn" text="Duration" prefWidth="100" />
+                    <TableColumn fx:id="testCostColumn" text="Cost" prefWidth="100" />
+                    <TableColumn fx:id="testFastingColumn" text="Fasting Required" prefWidth="120" />
+                    <TableColumn fx:id="testActionColumn" text="Actions" prefWidth="150" />
+                </columns>
+            </TableView>
+        </VBox>
+    </Tab>
+
+    <Tab text="Test Results" closable="false">
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Test Results" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Filter -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Status:" />
+                    <ComboBox fx:id="resultStatusCombo" prefWidth="150" onAction="#handleResultStatusFilter" />
+                </HBox>
+
+                <!-- Create Result Button -->
+                <Button fx:id="requestTestButton" text="Request Test" onAction="#handleRequestTest" styleClass="primary" />
+                <Button fx:id="addResultButton" text="Add Result" onAction="#handleAddResult" />
+            </HBox>
+
+            <!-- Results Table -->
+            <TableView fx:id="resultTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="resultIdColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="resultPatientColumn" text="Patient" prefWidth="150" />
+                    <TableColumn fx:id="resultTestColumn" text="Test" prefWidth="150" />
+                    <TableColumn fx:id="resultDoctorColumn" text="Doctor" prefWidth="150" />
+                    <TableColumn fx:id="resultDateColumn" text="Date" prefWidth="100" />
+                    <TableColumn fx:id="resultStatusColumn" text="Status" prefWidth="100" />
+                    <TableColumn fx:id="resultActionColumn" text="Actions" prefWidth="150" />
+                </columns>
+            </TableView>
+        </VBox>
+    </Tab>
+
+    <Tab text="X-Ray Examinations" closable="false">
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="X-Ray Examinations" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Filter -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Status:" />
+                    <ComboBox fx:id="xrayStatusCombo" prefWidth="150" onAction="#handleXrayStatusFilter" />
+                </HBox>
+
+                <!-- Request Button -->
+                <Button fx:id="requestXrayButton" text="Request X-Ray" onAction="#handleRequestXray" styleClass="primary" />
+                <Button fx:id="updateXrayButton" text="Update Result" onAction="#handleUpdateXrayResult" />
+            </HBox>
+
+            <!-- X-Ray Table -->
+            <TableView fx:id="xrayTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="xrayIdColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="xrayPatientColumn" text="Patient" prefWidth="150" />
+                    <TableColumn fx:id="xrayDoctorColumn" text="Doctor" prefWidth="150" />
+                    <TableColumn fx:id="xrayDateColumn" text="Date" prefWidth="100" />
+                    <TableColumn fx:id="xrayBodyPartColumn" text="Body Part" prefWidth="100" />
+                    <TableColumn fx:id="xrayStatusColumn" text="Status" prefWidth="100" />
+                    <TableColumn fx:id="xrayActionColumn" text="Actions" prefWidth="150" />
+                </columns>
+            </TableView>
+        </VBox>
+    </Tab>
+</TabPane>

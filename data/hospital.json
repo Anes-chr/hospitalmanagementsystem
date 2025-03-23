@@ -1,0 +1,32 @@
+[ {
+  "name" : "Metro General Hospital",
+  "maxPatients" : 500,
+  "state" : "New York",
+  "blocks" : [ {
+    "blockName" : "A",
+    "floorNumber" : 1,
+    "specialty" : "General Medicine",
+    "fullLocation" : "Block A, Floor 1, General Medicine"
+  }, {
+    "blockName" : "B",
+    "floorNumber" : 2,
+    "specialty" : "Cardiology",
+    "fullLocation" : "Block B, Floor 2, Cardiology"
+  }, {
+    "blockName" : "C",
+    "floorNumber" : 1,
+    "specialty" : "Pediatrics",
+    "fullLocation" : "Block C, Floor 1, Pediatrics"
+  }, {
+    "blockName" : "D",
+    "floorNumber" : 3,
+    "specialty" : "Surgery",
+    "fullLocation" : "Block D, Floor 3, Surgery"
+  }, {
+    "blockName" : "E",
+    "floorNumber" : 1,
+    "specialty" : "Emergency",
+    "fullLocation" : "Block E, Floor 1, Emergency"
+  } ],
+  "hospitalInfo" : "Hospital: Metro General Hospital\nState: New York\nMaximum Patients: 500"
+} ]

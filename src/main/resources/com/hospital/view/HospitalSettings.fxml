@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.HospitalSettingsController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header Section -->
+    <Label text="Hospital Settings" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+    <TabPane>
+        <Tab text="Hospital Information" closable="false">
+            <VBox spacing="15">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15" />
+                </padding>
+
+                <!-- Basic Hospital Information -->
+                <GridPane hgap="15" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="300" />
+                    </columnConstraints>
+
+                    <Label text="Hospital Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="hospitalNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                    <Label text="State/Location:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <TextField fx:id="hospitalStateField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                    <Label text="Maximum Patients:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <TextField fx:id="maxPatientsField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <Separator />
+
+                <!-- Hospital Blocks -->
+                <Label text="Hospital Blocks" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                <TableView fx:id="blocksTable" prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="blockNameColumn" text="Block Name" prefWidth="150" />
+                        <TableColumn fx:id="floorNumberColumn" text="Floor Number" prefWidth="150" />
+                        <TableColumn fx:id="specialtyColumn" text="Specialty" prefWidth="200" />
+                        <TableColumn fx:id="blockActionColumn" text="Actions" prefWidth="150" />
+                    </columns>
+                </TableView>
+
+                <HBox spacing="10">
+                    <Button fx:id="addBlockButton" text="Add Block" onAction="#handleAddBlock" />
+                </HBox>
+
+                <Separator />
+
+                <!-- Save Button -->
+                <HBox alignment="CENTER_RIGHT">
+                    <Button fx:id="saveHospitalButton" text="Save Hospital Information" onAction="#handleSaveHospital" styleClass="primary" />
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <Tab text="Blocks Management" closable="false">
+            <VBox spacing="15">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15" />
+                </padding>
+
+                <!-- Block Management Form -->
+                <GridPane hgap="15" vgap="15" styleClass="card">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15" />
+                    </padding>
+
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="300" />
+                    </columnConstraints>
+
+                    <Label text="Block Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="blockNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                    <Label text="Floor Number:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <TextField fx:id="floorNumberField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                    <Label text="Specialty:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <TextField fx:id="specialtyField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                    <HBox spacing="10" alignment="CENTER_RIGHT" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                        <Button fx:id="clearBlockFormButton" text="Clear" onAction="#handleClearBlockForm" />
+                        <Button fx:id="saveBlockButton" text="Save Block" onAction="#handleSaveBlock" styleClass="primary" />
+                    </HBox>
+                </GridPane>
+
+                <!-- Blocks List -->
+                <Label text="All Hospital Blocks" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                <TableView fx:id="allBlocksTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="allBlockNameColumn" text="Block Name" prefWidth="150" />
+                        <TableColumn fx:id="allFloorNumberColumn" text="Floor Number" prefWidth="150" />
+                        <TableColumn fx:id="allSpecialtyColumn" text="Specialty" prefWidth="200" />
+                        <TableColumn fx:id="allBlockActionColumn" text="Actions" prefWidth="150" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

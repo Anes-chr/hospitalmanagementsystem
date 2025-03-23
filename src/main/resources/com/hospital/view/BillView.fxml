@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.BillViewController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <VBox styleClass="card">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20" />
+        </padding>
+
+        <HBox alignment="CENTER">
+            <Label text="HOSPITAL BILL" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+        </HBox>
+
+        <HBox alignment="CENTER" style="-fx-padding: 0 0 15 0;">
+            <Label fx:id="hospitalNameLabel" text="Metro General Hospital" style="-fx-font-size: 16px;" />
+        </HBox>
+
+        <Separator />
+
+        <HBox spacing="10" style="-fx-padding: 10 0;">
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="PATIENT INFORMATION" style="-fx-font-weight: bold;" />
+                <Label fx:id="patientNameLabel" text="Patient Name: " />
+                <Label fx:id="patientIdLabel" text="Patient ID: " />
+                <Label fx:id="patientTypeLabel" text="Patient Type: " />
+            </VBox>
+
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="BILL INFORMATION" style="-fx-font-weight: bold;" />
+                <Label fx:id="billDateLabel" text="Bill Date: " />
+                <Label fx:id="billNumberLabel" text="Bill #: " />
+            </VBox>
+        </HBox>
+
+        <Separator />
+
+        <VBox spacing="10" style="-fx-padding: 10 0;">
+            <Label text="BILLING DETAILS" style="-fx-font-weight: bold;" />
+
+            <TableView fx:id="billItemsTable">
+                <columns>
+                    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250" />
+                    <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="100" />
+                    <TableColumn fx:id="unitPriceColumn" text="Unit Price" prefWidth="120" />
+                    <TableColumn fx:id="totalColumn" text="Total" prefWidth="120" />
+                </columns>
+            </TableView>
+        </VBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10 0;">
+            <Label text="Subtotal:" />
+            <Label fx:id="subtotalLabel" text="$0.00" />
+        </HBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="10">
+            <Label text="Tax (10%):" />
+            <Label fx:id="taxLabel" text="$0.00" />
+        </HBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-font-weight: bold;">
+            <Label text="TOTAL AMOUNT:" />
+            <Label fx:id="totalAmountLabel" text="$0.00" />
+        </HBox>
+
+        <Separator />
+
+        <VBox spacing="5" style="-fx-padding: 10 0;">
+            <Label text="Payment Information" style="-fx-font-weight: bold;" />
+            <Label text="Please make payment within 30 days of receipt." />
+            <Label text="For questions regarding this bill, please contact billing department at 555-123-4567." />
+        </VBox>
+
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 15 0 0 0;">
+            <Button fx:id="printButton" text="Print Bill" onAction="#handlePrint" />
+            <Button fx:id="saveButton" text="Save Bill" onAction="#handleSave" />
+            <Button fx:id="closeButton" text="Close" onAction="#handleClose" />
+        </HBox>
+    </VBox>
+</VBox>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hospital.controller.NewAppointmentController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <Label text="Schedule Appointment" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="15" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="100" />
+            <ColumnConstraints minWidth="200" hgrow="ALWAYS" />
+        </columnConstraints>
+
+        <!-- Patient Selection -->
+        <Label text="Patient:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <HBox spacing="10" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <ComboBox fx:id="patientComboBox" prefWidth="250" />
+            <Button text="Search Patient" onAction="#handleSearchPatient" />
+        </HBox>
+
+        <!-- Doctor Selection -->
+        <Label text="Doctor:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <HBox spacing="10" GridPane.rowIndex="1" GridPane.columnIndex="1">
+            <ComboBox fx:id="doctorComboBox" prefWidth="250" />
+            <ComboBox fx:id="specialtyComboBox" promptText="Filter by Specialty" onAction="#handleSpecialtyFilter" />
+        </HBox>
+
+        <!-- Date Selection -->
+        <Label text="Date:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <DatePicker fx:id="datePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <!-- Time Selection -->
+        <Label text="Time:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <ComboBox fx:id="timeComboBox" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+        <!-- Duration -->
+        <Label text="Duration:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+        <ComboBox fx:id="durationComboBox" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+        <!-- Location -->
+        <Label text="Location:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+        <ComboBox fx:id="locationComboBox" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+        <!-- Purpose -->
+        <Label text="Purpose:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+        <TextField fx:id="purposeField" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+        <!-- Notes -->
+        <Label text="Notes:" GridPane.rowIndex="7" GridPane.columnIndex="0" GridPane.valignment="TOP" />
+        <TextArea fx:id="notesArea" prefHeight="100" wrapText="true" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" />
+        <Button fx:id="saveButton" text="Schedule" onAction="#handleSave" styleClass="primary" />
+    </HBox>
+</VBox>
